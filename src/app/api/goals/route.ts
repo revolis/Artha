@@ -5,7 +5,7 @@ import { createSupabaseRouteClient } from "@/lib/supabase/route";
 import { getDashboardYearData } from "@/lib/supabase/queries";
 
 export async function GET(request: NextRequest) {
-  const supabase = await createSupabaseRouteClient();
+  const supabase = createSupabaseRouteClient();
   const { data, error } = await supabase.auth.getUser();
 
   if (error || !data.user) {
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const supabase = await createSupabaseRouteClient();
+  const supabase = createSupabaseRouteClient();
   const { data, error } = await supabase.auth.getUser();
 
   if (error || !data.user) {

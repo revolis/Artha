@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Invalid OAuth state" }, { status: 400 });
   }
 
-  const supabase = await createSupabaseRouteClient();
+  const supabase = createSupabaseRouteClient();
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
