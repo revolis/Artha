@@ -9,7 +9,7 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: { entryId: string; attachmentId: string } }
 ) {
-  const supabase = createSupabaseRouteClient();
+  const supabase = await createSupabaseRouteClient();
   const { data, error } = await supabase.auth.getUser();
 
   if (error || !data.user) {

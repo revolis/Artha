@@ -5,7 +5,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { getDriveAccessToken } from "@/lib/drive/oauth";
 
 export async function GET() {
-  const supabase = createSupabaseRouteClient();
+  const supabase = await createSupabaseRouteClient();
   const { data, error } = await supabase.auth.getUser();
 
   if (error || !data.user) {

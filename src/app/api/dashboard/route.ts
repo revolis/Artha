@@ -5,7 +5,7 @@ import { createSupabaseRouteClient } from "@/lib/supabase/route";
 import { getAvailableYears, getDashboardYearData } from "@/lib/supabase/queries";
 
 export async function GET(request: NextRequest) {
-  const supabase = createSupabaseRouteClient();
+  const supabase = await createSupabaseRouteClient();
   const { searchParams } = new URL(request.url);
   const yearParam = searchParams.get("year");
   const year = yearParam ? Number(yearParam) : new Date().getUTCFullYear();

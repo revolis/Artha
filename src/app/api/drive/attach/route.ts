@@ -13,7 +13,7 @@ type DriveFilePayload = {
 };
 
 export async function POST(request: NextRequest) {
-  const supabase = createSupabaseRouteClient();
+  const supabase = await createSupabaseRouteClient();
   const { data, error } = await supabase.auth.getUser();
 
   if (error || !data.user) {

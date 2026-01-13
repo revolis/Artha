@@ -7,7 +7,7 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { categoryId: string } }
 ) {
-  const supabase = createSupabaseRouteClient();
+  const supabase = await createSupabaseRouteClient();
   const { data, error } = await supabase.auth.getUser();
 
   if (error || !data.user) {
@@ -53,7 +53,7 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: { categoryId: string } }
 ) {
-  const supabase = createSupabaseRouteClient();
+  const supabase = await createSupabaseRouteClient();
   const { data, error } = await supabase.auth.getUser();
 
   if (error || !data.user) {

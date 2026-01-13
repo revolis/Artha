@@ -5,7 +5,7 @@ import { createSupabaseRouteClient } from "@/lib/supabase/route";
 import { getAvailableYears } from "@/lib/supabase/queries";
 
 export async function GET() {
-  const supabase = createSupabaseRouteClient();
+  const supabase = await createSupabaseRouteClient();
   const { data, error } = await supabase.auth.getUser();
 
   if (error || !data.user) {
@@ -21,7 +21,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const supabase = createSupabaseRouteClient();
+  const supabase = await createSupabaseRouteClient();
   const { data, error } = await supabase.auth.getUser();
 
   if (error || !data.user) {

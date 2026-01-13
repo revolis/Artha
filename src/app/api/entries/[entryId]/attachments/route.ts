@@ -7,7 +7,7 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: { entryId: string } }
 ) {
-  const supabase = createSupabaseRouteClient();
+  const supabase = await createSupabaseRouteClient();
   const { data, error } = await supabase.auth.getUser();
 
   if (error || !data.user) {
