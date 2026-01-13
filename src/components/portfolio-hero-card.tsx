@@ -1,7 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { MaskedValue } from "@/components/masked-value";
+import { CurrencyDisplay } from "@/components/currency-display";
 import { PortfolioSparkline } from "@/components/charts/portfolio-sparkline";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 type PortfolioHeroCardProps = {
   totalValue: number;
@@ -25,8 +26,8 @@ export function PortfolioHeroCard({
           <p className="text-xs uppercase tracking-[0.2em] text-mutedForeground">
             Total portfolio value
           </p>
-          <MaskedValue
-            value={formatCurrency(totalValue, "USD")}
+          <CurrencyDisplay
+            value={totalValue}
             className="text-4xl font-semibold"
           />
           <div className="flex items-center gap-3 text-sm text-mutedForeground">
@@ -34,8 +35,8 @@ export function PortfolioHeroCard({
               value={`${changePercent > 0 ? "+" : ""}${changePercent.toFixed(1)}%`}
               className={cn("font-semibold", changeTone)}
             />
-            <MaskedValue
-              value={formatCurrency(changeValue, "USD")}
+            <CurrencyDisplay
+              value={changeValue}
               className={cn("font-medium", changeTone)}
             />
             <span>since last period</span>

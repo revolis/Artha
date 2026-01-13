@@ -20,6 +20,7 @@ export type DashboardYearData = {
     title: string;
     subtitle?: string;
     progress: number;
+    currentValue: number;
     targetValue: number;
     timeframe: "year" | "quarter" | "month" | "week" | "day";
     targetType: "income" | "net" | "portfolio_growth";
@@ -380,7 +381,7 @@ function buildHeatmapDays(entries: EntryRow[], year: number): HeatmapDay[] {
 
 function computeGoalProgress(goal: GoalRow, totals: ReturnType<typeof computePnlTotals>, portfolioTotal: number) {
   const targetValue = Math.abs(toNumber(goal.target_value_usd));
-  if (!targetValue) return 0;
+  if (!targetValue) return { progress: 0, achieved: 0 };
 
   let achieved = 0;
   switch (goal.target_type) {
@@ -398,7 +399,10 @@ function computeGoalProgress(goal: GoalRow, totals: ReturnType<typeof computePnl
   }
 
   const ratio = achieved / targetValue;
-  return Math.min(1, Math.max(0, ratio));
+  return {
+    progress: Math.min(1, Math.max(0, ratio)),
+    achieved
+  };
 }
 
 export async function getDashboardYearData(
@@ -489,11 +493,14 @@ export async function getDashboardYearData(
         : `Target until ${endLabel}`;
     const subtitle = goal.category?.name ? `${goal.category.name} focus` : goal.timeframe;
 
+    const { progress, achieved } = computeGoalProgress(goal, scopedTotals, scopedPortfolioValue);
+
     return {
       id: goal.id,
       title,
       subtitle,
-      progress: computeGoalProgress(goal, scopedTotals, scopedPortfolioValue),
+      progress,
+      currentValue: achieved,
       targetValue: Math.abs(toNumber(goal.target_value_usd)),
       timeframe: goal.timeframe,
       targetType: goal.target_type,

@@ -5,6 +5,9 @@ import Link from "next/link";
 
 import { YearSwitcher } from "@/components/year-switcher";
 import { YearDeleteDialog } from "@/components/year-delete-dialog";
+import { YearAddDialog } from "@/components/year-add-dialog";
+import { DateRangePicker, type DateRangePreset } from "@/components/date-range-picker";
+import { DateRange } from "react-day-picker";
 import { TargetProgressCard } from "@/components/target-progress-card";
 import { PortfolioHeroCard } from "@/components/portfolio-hero-card";
 import { KpiCard } from "@/components/kpi-card";
@@ -17,7 +20,8 @@ import { HeatmapGrid } from "@/components/heatmap-grid";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { buttonVariants } from "@/components/ui/button";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { CurrencyDisplay } from "@/components/currency-display";
 import type { DashboardYearData, NetSeriesKey } from "@/lib/supabase/queries";
 
 const rangeOptions: { label: string; value: NetSeriesKey }[] = [
@@ -56,6 +60,11 @@ export default function DashboardPage() {
   const [error, setError] = React.useState<string | null>(null);
   const [deleteYear, setDeleteYear] = React.useState<number | null>(null);
   const [deleteYearOpen, setDeleteYearOpen] = React.useState(false);
+  const [addYearOpen, setAddYearOpen] = React.useState(false);
+
+  // Date Range State
+  const [dateRange, setDateRange] = React.useState<DateRange | undefined>();
+  const [rangePreset, setRangePreset] = React.useState<DateRangePreset>("ytd");
 
   React.useEffect(() => {
     let active = true;
@@ -109,27 +118,18 @@ export default function DashboardPage() {
   );
   const topPercent = Math.round(topCategory.value);
 
-  const handleAddYear = React.useCallback(async () => {
-    const value = window.prompt("Enter year", String(selectedYear + 1));
-    if (!value) return;
-    const parsed = Number(value);
-    if (!Number.isFinite(parsed)) return;
+  const handleAddYearRequest = React.useCallback(() => {
+    setAddYearOpen(true);
+  }, []);
+
+  const handleYearAdded = React.useCallback(async (year: number) => {
     try {
-      const response = await fetch("/api/years", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ year: parsed })
-      });
-      if (!response.ok) {
-        throw new Error("Failed to create year");
-      }
-      const payload = await response.json();
-      setYears(payload.years ?? [parsed]);
-      setSelectedYear(parsed);
+      setYears((prev) => [...prev, year].sort((a, b) => a - b));
+      setSelectedYear(year);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create year");
+      console.error(err);
     }
-  }, [selectedYear]);
+  }, []);
 
   const handleDeleteYearRequest = React.useCallback((year: number) => {
     setDeleteYear(year);
@@ -170,9 +170,19 @@ export default function DashboardPage() {
           years={years}
           selectedYear={selectedYear}
           onSelect={setSelectedYear}
-          onAddYear={handleAddYear}
+          onAddYear={handleAddYearRequest}
           onDeleteYear={handleDeleteYearRequest}
         />
+        <div className="flex items-center justify-end">
+          <DateRangePicker
+            date={dateRange}
+            onSelect={(range, preset) => {
+              setDateRange(range);
+              setRangePreset(preset);
+            }}
+            defaultPreset="ytd"
+          />
+        </div>
       </div>
 
       {error ? (
@@ -189,6 +199,8 @@ export default function DashboardPage() {
                 title={target.title}
                 subtitle={target.subtitle}
                 progress={target.progress}
+                current={target.currentValue}
+                target={target.targetValue}
                 averageMonthlyNet={dashboard.averageMonthlyNet}
                 size={targetSize}
               />
@@ -213,17 +225,17 @@ export default function DashboardPage() {
       <section className="grid gap-4 md:grid-cols-3">
         <KpiCard
           label="Net P/L"
-          displayValue={formatCurrency(dashboard.pnl.net, "USD")}
+          value={dashboard.pnl.net}
           tone={dashboard.pnl.net >= 0 ? "positive" : "negative"}
         />
         <KpiCard
           label="Profit"
-          displayValue={formatCurrency(dashboard.pnl.profit, "USD")}
+          value={dashboard.pnl.profit}
           tone="positive"
         />
         <KpiCard
           label="Loss"
-          displayValue={formatCurrency(dashboard.pnl.loss, "USD")}
+          value={dashboard.pnl.loss}
           tone="negative"
         />
       </section>
@@ -282,7 +294,7 @@ export default function DashboardPage() {
                   <TableCell className="capitalize">{entry.type}</TableCell>
                   <TableCell>{entry.category}</TableCell>
                   <TableCell>
-                    <MaskedValue value={formatCurrency(entry.amount, "USD")} />
+                    <CurrencyDisplay value={entry.amount} />
                   </TableCell>
                   <TableCell>
                     <Link
@@ -310,6 +322,12 @@ export default function DashboardPage() {
         open={deleteYearOpen}
         onOpenChange={setDeleteYearOpen}
         onDeleted={handleYearDeleted}
+      />
+
+      <YearAddDialog
+        open={addYearOpen}
+        onOpenChange={setAddYearOpen}
+        onYearAdded={handleYearAdded}
       />
     </div>
   );

@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress, ProgressIndicator } from "@/components/ui/progress";
+import { Progress } from "@/components/ui/progress";
 import { MaskedValue } from "@/components/masked-value";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -232,9 +232,7 @@ export default function GoalsPage() {
                       className="text-sm font-semibold"
                     />
                   </div>
-                  <Progress>
-                    <ProgressIndicator style={{ width: `${Math.round(goal.progress * 100)}%` }} />
-                  </Progress>
+                  <Progress value={Math.round(goal.progress * 100)} />
                   <p className="text-xs text-mutedForeground">
                     <MaskedValue value={`${Math.round(goal.progress * 100)}%`} /> of target achieved
                   </p>

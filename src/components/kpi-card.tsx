@@ -14,14 +14,17 @@ const valueTone = {
   neutral: "text-foreground"
 } as const;
 
+import { CurrencyDisplay } from "@/components/currency-display";
+
 type KpiCardProps = {
   label: string;
-  displayValue: string;
+  displayValue?: string; // Legacy support
+  value?: number; // New standard
   trend?: string;
   tone?: keyof typeof trendStyles;
 };
 
-export function KpiCard({ label, displayValue, trend, tone = "neutral" }: KpiCardProps) {
+export function KpiCard({ label, displayValue, value, trend, tone = "neutral" }: KpiCardProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -29,10 +32,17 @@ export function KpiCard({ label, displayValue, trend, tone = "neutral" }: KpiCar
         {trend ? <Badge variant={trendStyles[tone]}>{trend}</Badge> : null}
       </CardHeader>
       <CardContent>
-        <MaskedValue
-          value={displayValue}
-          className={`text-2xl font-semibold ${valueTone[tone]}`}
-        />
+        {value !== undefined ? (
+          <CurrencyDisplay
+            value={value}
+            className={`text-2xl font-semibold ${valueTone[tone]}`}
+          />
+        ) : (
+          <MaskedValue
+            value={displayValue || ""}
+            className={`text-2xl font-semibold ${valueTone[tone]}`}
+          />
+        )}
       </CardContent>
     </Card>
   );
