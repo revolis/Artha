@@ -23,10 +23,31 @@ export function createSupabaseRouteClient() {
           return cookieStore.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
-          cookieStore.set({ name, value, ...options });
+          try {
+            cookieStore.set({
+              name,
+              value,
+              ...options,
+              sameSite: 'lax',
+              path: '/',
+            });
+          } catch (error) {
+            // Handle cookie setting errors (e.g., in Edge runtime)
+          }
         },
         remove(name: string, options: CookieOptions) {
-          cookieStore.set({ name, value: "", ...options });
+          try {
+            cookieStore.set({
+              name,
+              value: '',
+              ...options,
+              sameSite: 'lax',
+              path: '/',
+              maxAge: 0,
+            });
+          } catch (error) {
+            // Handle cookie removal errors
+          }
         }
       }
     }

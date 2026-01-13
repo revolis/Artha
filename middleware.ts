@@ -36,7 +36,13 @@ export async function middleware(request: NextRequest) {
               headers: request.headers,
             },
           });
-          response.cookies.set({ name, value, ...options });
+          response.cookies.set({
+            name,
+            value,
+            ...options,
+            sameSite: 'lax',
+            path: '/',
+          });
         },
         remove(name: string, options: CookieOptions) {
           request.cookies.set({ name, value: "", ...options });
@@ -45,7 +51,14 @@ export async function middleware(request: NextRequest) {
               headers: request.headers,
             },
           });
-          response.cookies.set({ name, value: "", ...options });
+          response.cookies.set({
+            name,
+            value: '',
+            ...options,
+            sameSite: 'lax',
+            path: '/',
+            maxAge: 0,
+          });
         }
       }
     }
