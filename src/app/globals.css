@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f6f3ef;
+  --foreground: #1e1c18;
+  --card: #ffffff;
+  --card-foreground: #1e1c18;
+  --muted: #eee7df;
+  --muted-foreground: #6d675f;
+  --accent: #2f6b5e;
+  --accent-foreground: #ffffff;
+  --border: #e2d9cf;
+  --ring: #b9a895;
+  --positive: #1b6f5a;
+  --negative: #b04a3a;
+  --warning: #c48b2a;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  color: var(--foreground);
+  background-color: var(--background);
+  background-image:
+    radial-gradient(circle at top right, rgba(47, 107, 94, 0.12), transparent 40%),
+    radial-gradient(circle at 20% 20%, rgba(196, 139, 42, 0.12), transparent 45%);
+  font-family: var(--font-body), sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.011em;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display), serif;
+  font-weight: 600;
+  letter-spacing: -0.022em;
+}
+
+[data-private="true"] .private-value {
+  filter: blur(6px);
+}
