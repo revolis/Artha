@@ -136,20 +136,22 @@ export default function SettingsPage() {
                   </div>
                   <div className="flex items-center justify-between pt-2 border-t">
                     <div className="text-sm text-muted-foreground">
-                      Reset to default rate ({DEFAULT_USD_NPR_RATE} NPR)
+                      Save current rate as your default
                     </div>
                     <Button 
                       variant="outline" 
                       size="sm"
                       onClick={async () => {
                         setSettingDefault(true);
-                        setLocalRate(DEFAULT_USD_NPR_RATE.toString());
-                        await updateSettings({ fx_manual_rate_usd_npr: DEFAULT_USD_NPR_RATE });
+                        const rate = parseFloat(localRate);
+                        if (!isNaN(rate) && rate > 0) {
+                          await updateSettings({ fx_manual_rate_usd_npr: rate });
+                        }
                         setSettingDefault(false);
                       }}
                       disabled={settingDefault}
                     >
-                      {settingDefault ? "Setting..." : "Set as Default"}
+                      {settingDefault ? "Saving..." : "Set as Default"}
                     </Button>
                   </div>
                 </div>
