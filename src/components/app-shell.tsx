@@ -14,9 +14,11 @@ import {
   Gauge,
   Layers,
   LineChart,
+  Menu,
   PieChart,
   Settings,
-  Target
+  Target,
+  X
 } from "lucide-react";
 
 import { fetchWithAuth } from "@/lib/supabase/browser";
@@ -43,6 +45,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { enabled, toggle } = usePrivateMode();
   const [showTaxFees, setShowTaxFees] = React.useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   React.useEffect(() => {
     let active = true;
@@ -64,6 +67,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  React.useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
   const visibleNavItems = React.useMemo(
     () => (showTaxFees ? navItems : navItems.filter((item) => item.href !== "/tax-fees")),
     [showTaxFees]
@@ -71,11 +78,29 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen" data-private={enabled}>
-      <aside className="hidden w-64 flex-col gap-6 border-r border-border bg-card/70 px-6 py-8 lg:flex">
-        <div>
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden" 
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      <aside className={cn(
+        "fixed inset-y-0 left-0 z-50 w-64 flex-col gap-6 border-r border-border bg-card px-6 py-8 transition-transform duration-300 lg:static lg:translate-x-0 lg:flex",
+        mobileMenuOpen ? "translate-x-0 flex" : "-translate-x-full hidden lg:flex"
+      )}>
+        <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold">ARTHA MgMt</h1>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="lg:hidden" 
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <X className="h-5 w-5" />
+          </Button>
         </div>
-        <nav className="flex flex-1 flex-col gap-2">
+        <nav className="flex flex-1 flex-col gap-2 overflow-y-auto">
           {visibleNavItems.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
@@ -102,21 +127,31 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between gap-4 border-b border-border bg-card/60 px-6 py-4 backdrop-blur">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-mutedForeground">
-              ARTHA MgMt
-            </p>
-            <h2 className="text-lg font-semibold">Financial Overview</h2>
-          </div>
+        <header className="flex items-center justify-between gap-4 border-b border-border bg-card/60 px-4 py-4 backdrop-blur sm:px-6">
           <div className="flex items-center gap-3">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="lg:hidden" 
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-mutedForeground">
+                ARTHA MgMt
+              </p>
+              <h2 className="text-lg font-semibold">Financial Overview</h2>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 sm:gap-3">
             <Button variant="outline" size="icon" onClick={toggle} title={enabled ? "Disable Private Mode" : "Enable Private Mode"}>
               {enabled ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </Button>
             <SignOutButton />
           </div>
         </header>
-        <main className="flex-1 px-6 py-8">{children}</main>
+        <main className="flex-1 overflow-x-auto px-4 py-6 sm:px-6 sm:py-8">{children}</main>
       </div>
     </div>
   );
