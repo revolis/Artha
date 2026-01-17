@@ -2,6 +2,11 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { format, startOfWeek, startOfMonth, startOfYear, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, isSameDay, isSameWeek, isSameMonth, subDays, subWeeks, subMonths, eachYearOfInterval, isSameYear, subYears } from "date-fns";
 
 export type Period = "7d" | "30d" | "3m" | "6m" | "ytd" | "1y" | "all";
+
+// Convert Date to YYYY-MM-DD format for consistent database queries (matching dashboard)
+function toDateString(date: Date): string {
+    return date.toISOString().slice(0, 10);
+}
 export type Grouping = "day" | "week" | "month" | "year";
 
 export async function getAnalyticsData(
@@ -91,12 +96,16 @@ export async function getAnalyticsData(
     // We fetch ALL entries for the ranges. For larger apps, we'd aggregate in SQL.
     // For personal finance (thousands of rows), fetching 1-2k rows is fine.
 
+    // Use date strings (YYYY-MM-DD) for consistent comparison with entry_date column
+    const startStr = toDateString(start);
+    const endStr = toDateString(end);
+    
     const { data: currentEntriesRaw, error: currentError } = await supabase
         .from("entries")
         .select("*, categories(name, type), sources(platform)")
         .eq("user_id", userId)
-        .gte("entry_date", start.toISOString())
-        .lte("entry_date", end.toISOString())
+        .gte("entry_date", startStr)
+        .lte("entry_date", endStr)
         .order("entry_date", { ascending: true });
 
     if (currentError) {
@@ -111,12 +120,14 @@ export async function getAnalyticsData(
     const hasMeaningfulPrevPeriod = period !== "all" && previousStart.getTime() !== previousEnd.getTime();
     
     if (hasMeaningfulPrevPeriod) {
+        const prevStartStr = toDateString(previousStart);
+        const prevEndStr = toDateString(previousEnd);
         const result = await supabase
             .from("entries")
             .select("amount_usd_base, entry_type")
             .eq("user_id", userId)
-            .gte("entry_date", previousStart.toISOString())
-            .lte("entry_date", previousEnd.toISOString());
+            .gte("entry_date", prevStartStr)
+            .lte("entry_date", prevEndStr);
         prevEntriesRaw = result.data;
         prevError = result.error;
     }
