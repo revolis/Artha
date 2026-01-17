@@ -73,10 +73,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen" data-private={enabled}>
       <aside className="hidden w-64 flex-col gap-6 border-r border-border bg-card/70 px-6 py-8 lg:flex">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-mutedForeground">
-            Rabin Finance OS
-          </p>
-          <h1 className="mt-2 text-2xl font-semibold">Personal Command</h1>
+          <h1 className="text-2xl font-semibold">ARTHA MgMt</h1>
         </div>
         <nav className="flex flex-1 flex-col gap-2">
           {visibleNavItems.map((item) => {
@@ -108,7 +105,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <header className="flex items-center justify-between gap-4 border-b border-border bg-card/60 px-6 py-4 backdrop-blur">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-mutedForeground">
-              Rabin Finance OS
+              ARTHA MgMt
             </p>
             <h2 className="text-lg font-semibold">Financial Overview</h2>
           </div>
