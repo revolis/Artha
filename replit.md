@@ -83,6 +83,15 @@ The application uses Supabase's hosted PostgreSQL database. Database schema migr
 
 ## Recent Changes
 
+- 2026-01-17: AI Insights page enhancement
+  - New date filters: This Month, This Quarter, 6 Months, This Year, All Time, Custom Range
+  - Custom date range picker with calendar popover
+  - 5 AI insight types: Financial Health, Spending Analysis, Savings Opportunities, Goal Progress, Forecast
+  - Specialized AI prompts for each insight type with detailed analysis
+  - Enhanced UI with cards, quick tips sidebar, and how-it-works guide
+  - Better markdown rendering for AI responses
+  - Added "this_month", "this_quarter", and "custom" to Period type
+
 - 2026-01-17: Comprehensive Analytics page overhaul
   - Default period changed to "All Time" for complete financial overview
   - Fixed date range to include future-dated entries (uses actual min/max entry dates)

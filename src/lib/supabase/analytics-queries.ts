@@ -1,7 +1,7 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { format, startOfWeek, startOfMonth, startOfYear, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, isSameDay, isSameWeek, isSameMonth, subDays, subWeeks, subMonths, eachYearOfInterval, isSameYear, subYears } from "date-fns";
+import { format, startOfWeek, startOfMonth, startOfYear, startOfQuarter, endOfMonth, endOfQuarter, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, isSameDay, isSameWeek, isSameMonth, subDays, subWeeks, subMonths, eachYearOfInterval, isSameYear, subYears } from "date-fns";
 
-export type Period = "7d" | "30d" | "3m" | "6m" | "ytd" | "1y" | "all";
+export type Period = "7d" | "30d" | "this_month" | "this_quarter" | "3m" | "6m" | "ytd" | "1y" | "all" | "custom";
 
 // Convert Date to YYYY-MM-DD format for consistent database queries (matching dashboard)
 function toDateString(date: Date): string {
@@ -50,6 +50,18 @@ export async function getAnalyticsData(
             previousStart = subDays(start, 30);
             previousEnd = subDays(start, 1);
             break;
+        case "this_month":
+            start = startOfMonth(now);
+            end = endOfMonth(now);
+            previousStart = startOfMonth(subMonths(now, 1));
+            previousEnd = endOfMonth(subMonths(now, 1));
+            break;
+        case "this_quarter":
+            start = startOfQuarter(now);
+            end = endOfQuarter(now);
+            previousStart = startOfQuarter(subMonths(now, 3));
+            previousEnd = endOfQuarter(subMonths(now, 3));
+            break;
         case "3m":
             start = subMonths(effectiveEnd, 3);
             previousStart = subMonths(start, 3);
@@ -79,6 +91,9 @@ export async function getAnalyticsData(
             // No meaningful previous period for "all"
             previousStart = new Date(0);
             previousEnd = new Date(0);
+            break;
+        case "custom":
+            // Custom range is handled by customStart/customEnd below
             break;
     }
 
