@@ -52,10 +52,33 @@ export function TargetProgressCard({
         <div className="space-y-4">
           <div className="flex justify-between text-sm">
             <span className="text-mutedForeground">Progress</span>
-            <span className="font-medium">{percentage}%</span>
+            <span className={cn("font-medium", isCompleted && "text-positive")}>{percentage}%</span>
           </div>
 
-          <Progress value={Math.min(100, percentage)} className="h-2" />
+          <div className="relative">
+            {percentage > 100 ? (
+              <div className="relative h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-positive transition-all"
+                  style={{ width: `${Math.min(100, (100 / percentage) * 100)}%` }}
+                />
+                <div
+                  className="absolute top-0 h-full rounded-r-full bg-emerald-600 transition-all"
+                  style={{ 
+                    left: `${Math.min(100, (100 / percentage) * 100)}%`,
+                    width: `${100 - Math.min(100, (100 / percentage) * 100)}%` 
+                  }}
+                />
+                <div 
+                  className="absolute top-[-2px] h-[12px] w-[2px] bg-foreground"
+                  style={{ left: `${(100 / percentage) * 100}%` }}
+                  title="100% Target"
+                />
+              </div>
+            ) : (
+              <Progress value={percentage} className="h-2" />
+            )}
+          </div>
 
           <div className="flex justify-between text-xs text-mutedForeground">
             <div className="flex gap-1">
