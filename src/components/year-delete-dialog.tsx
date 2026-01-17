@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { fetchWithAuth } from "@/lib/supabase/browser";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,7 +34,7 @@ export function YearDeleteDialog({ year, open, onOpenChange, onDeleted }: YearDe
     setLoadingSummary(true);
     setError(null);
 
-    fetch(`/api/years/${year}`, { cache: "no-store" })
+    fetchWithAuth(`/api/years/${year}`, { cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) {
           const payload = await response.json().catch(() => ({}));
@@ -70,7 +71,7 @@ export function YearDeleteDialog({ year, open, onOpenChange, onDeleted }: YearDe
     setError(null);
 
     try {
-      const response = await fetch(`/api/years/${year}`, { method: "DELETE" });
+      const response = await fetchWithAuth(`/api/years/${year}`, { method: "DELETE" });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
         throw new Error(payload.error || "Failed to delete year");

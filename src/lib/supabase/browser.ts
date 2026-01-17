@@ -1,29 +1,46 @@
 import { createBrowserClient } from "@supabase/ssr";
 
+let supabaseInstance: ReturnType<typeof createBrowserClient> | null = null;
+
 export function createSupabaseBrowserClient() {
-  return createBrowserClient(
+  if (supabaseInstance) return supabaseInstance;
+  
+  supabaseInstance = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
     {
-      cookies: {
-        get(name: string) {
-          const value = document.cookie
-            .split('; ')
-            .find((row) => row.startsWith(`${name}=`))
-            ?.split('=')[1];
-          return value;
-        },
-        set(name: string, value: string, options: { path?: string; maxAge?: number; domain?: string; sameSite?: string; secure?: boolean }) {
-          let cookie = `${name}=${value}; path=${options.path ?? '/'}; SameSite=None; Secure`;
-          if (options.maxAge) {
-            cookie += `; Max-Age=${options.maxAge}`;
-          }
-          document.cookie = cookie;
-        },
-        remove(name: string, options: { path?: string }) {
-          document.cookie = `${name}=; path=${options.path ?? '/'}; Max-Age=0; SameSite=None; Secure`;
-        },
+      auth: {
+        flowType: 'pkce',
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        persistSession: true,
+        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
       },
     }
   );
+  
+  return supabaseInstance;
+}
+
+export async function getAuthHeaders(): Promise<Record<string, string>> {
+  const supabase = createSupabaseBrowserClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (session?.access_token) {
+    return {
+      'Authorization': `Bearer ${session.access_token}`,
+    };
+  }
+  return {};
+}
+
+export async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
+  const authHeaders = await getAuthHeaders();
+  return fetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      ...authHeaders,
+    },
+  });
 }

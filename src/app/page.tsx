@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { fetchWithAuth } from "@/lib/supabase/browser";
 
 import { YearSwitcher } from "@/components/year-switcher";
 import { YearDeleteDialog } from "@/components/year-delete-dialog";
@@ -71,7 +72,7 @@ export default function DashboardPage() {
     setLoading(true);
     setError(null);
 
-    fetch(`/api/dashboard?year=${selectedYear}`, { cache: "no-store" })
+    fetchWithAuth(`/api/dashboard?year=${selectedYear}`, { cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) {
           const payload = await response.json().catch(() => ({}));

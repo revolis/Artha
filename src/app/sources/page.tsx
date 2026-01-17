@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { fetchWithAuth } from "@/lib/supabase/browser";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -71,9 +72,9 @@ export default function SourcesPage() {
     setError(null);
     try {
       const [categoriesResponse, sourcesResponse, tagsResponse] = await Promise.all([
-        fetch("/api/categories", { cache: "no-store" }),
-        fetch("/api/sources", { cache: "no-store" }),
-        fetch("/api/tags", { cache: "no-store" })
+        fetchWithAuth("/api/categories", { cache: "no-store" }),
+        fetchWithAuth("/api/sources", { cache: "no-store" }),
+        fetchWithAuth("/api/tags", { cache: "no-store" })
       ]);
 
       if (!categoriesResponse.ok) throw new Error("Failed to load categories");
@@ -99,7 +100,7 @@ export default function SourcesPage() {
   const handleCreateCategory = async () => {
     if (!newCategory.trim()) return;
 
-    const response = await fetch("/api/categories", {
+    const response = await fetchWithAuth("/api/categories", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: newCategory.trim() })
@@ -134,7 +135,7 @@ export default function SourcesPage() {
       return;
     }
 
-    const response = await fetch(`/api/categories/${editingCategory.id}`, {
+    const response = await fetchWithAuth(`/api/categories/${editingCategory.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: categoryDraft.name.trim() })
@@ -149,7 +150,7 @@ export default function SourcesPage() {
   };
 
   const handleDeleteCategory = async (categoryId: string) => {
-    const response = await fetch(`/api/categories/${categoryId}`, { method: "DELETE" });
+    const response = await fetchWithAuth(`/api/categories/${categoryId}`, { method: "DELETE" });
     if (response.ok) {
       loadData();
       return;
@@ -159,7 +160,7 @@ export default function SourcesPage() {
 
   const handleCreateSource = async () => {
     if (!newSource.platform.trim()) return;
-    const response = await fetch("/api/sources", {
+    const response = await fetchWithAuth("/api/sources", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -204,7 +205,7 @@ export default function SourcesPage() {
       return;
     }
 
-    const response = await fetch(`/api/sources/${editingSource.id}`, {
+    const response = await fetchWithAuth(`/api/sources/${editingSource.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -224,7 +225,7 @@ export default function SourcesPage() {
   };
 
   const handleDeleteSource = async (sourceId: string) => {
-    const response = await fetch(`/api/sources/${sourceId}`, { method: "DELETE" });
+    const response = await fetchWithAuth(`/api/sources/${sourceId}`, { method: "DELETE" });
     if (response.ok) {
       loadData();
       return;
@@ -234,7 +235,7 @@ export default function SourcesPage() {
 
   const handleCreateTag = async () => {
     if (!newTag.trim()) return;
-    const response = await fetch("/api/tags", {
+    const response = await fetchWithAuth("/api/tags", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: newTag.trim() })
@@ -249,7 +250,7 @@ export default function SourcesPage() {
   };
 
   const handleDeleteTag = async (tagId: string) => {
-    const response = await fetch(`/api/tags/${tagId}`, { method: "DELETE" });
+    const response = await fetchWithAuth(`/api/tags/${tagId}`, { method: "DELETE" });
     if (response.ok) {
       loadData();
       return;

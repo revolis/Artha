@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { MoreHorizontal, Trash2 } from "lucide-react";
 
+import { fetchWithAuth } from "@/lib/supabase/browser";
 import { PageHeader } from "@/components/page-header";
 import { MaskedValue } from "@/components/masked-value";
 import { YearSwitcher } from "@/components/year-switcher";
@@ -80,7 +81,7 @@ function EntriesContent() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/entries?year=${selectedYear}`, { cache: "no-store" });
+      const response = await fetchWithAuth(`/api/entries?year=${selectedYear}`, { cache: "no-store" });
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
         throw new Error(payload.error || "Failed to load entries");
@@ -118,7 +119,7 @@ function EntriesContent() {
     setDeleting(true);
     setError(null);
     try {
-      const response = await fetch(`/api/entries/${entryToDelete.id}`, { method: "DELETE" });
+      const response = await fetchWithAuth(`/api/entries/${entryToDelete.id}`, { method: "DELETE" });
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
         throw new Error(payload.error || "Failed to delete entry");

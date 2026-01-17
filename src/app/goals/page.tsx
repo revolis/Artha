@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { fetchWithAuth } from "@/lib/supabase/browser";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -73,9 +74,9 @@ export default function GoalsPage() {
 
       try {
         const [goalsResponse, yearsResponse, categoriesResponse] = await Promise.all([
-          fetch(`/api/goals?year=${selectedYear}`, { cache: "no-store", signal }),
-          fetch("/api/years", { cache: "no-store", signal }),
-          fetch("/api/categories", { cache: "no-store", signal })
+          fetchWithAuth(`/api/goals?year=${selectedYear}`, { cache: "no-store", signal }),
+          fetchWithAuth("/api/years", { cache: "no-store", signal }),
+          fetchWithAuth("/api/categories", { cache: "no-store", signal })
         ]);
 
         if (!goalsResponse.ok) throw new Error("Failed to load goals");
@@ -122,7 +123,7 @@ export default function GoalsPage() {
         return;
       }
 
-      const response = await fetch("/api/goals", {
+      const response = await fetchWithAuth("/api/goals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -156,7 +157,7 @@ export default function GoalsPage() {
     setError(null);
 
     try {
-      const response = await fetch(`/api/goals/${goalToDelete.id}`, { method: "DELETE" });
+      const response = await fetchWithAuth(`/api/goals/${goalToDelete.id}`, { method: "DELETE" });
       if (response.ok) {
         setGoalToDelete(null);
         loadGoals();

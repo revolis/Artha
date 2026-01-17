@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Download, Receipt, Calculator, Building2 } from "lucide-react";
 import { format } from "date-fns";
+import { fetchWithAuth } from "@/lib/supabase/browser";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -42,7 +43,7 @@ export default function TaxFeesPage() {
     setLoading(true);
     try {
       const query = year === 'all' ? '' : `?year=${year}`;
-      const res = await fetch(`/api/tax-fees${query}`);
+      const res = await fetchWithAuth(`/api/tax-fees${query}`);
       if (res.ok) {
         const payload = await res.json();
         setData(payload);

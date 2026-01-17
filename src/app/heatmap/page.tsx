@@ -7,6 +7,7 @@ import { HeatmapGrid } from "@/components/heatmap-grid";
 import { YearSwitcher } from "@/components/year-switcher";
 import { ChartCard } from "@/components/chart-card";
 import { YearDeleteDialog } from "@/components/year-delete-dialog";
+import { fetchWithAuth } from "@/lib/supabase/browser";
 import type { HeatmapDay } from "@/lib/supabase/queries";
 
 export default function HeatmapPage() {
@@ -24,7 +25,7 @@ export default function HeatmapPage() {
     setLoading(true);
     setError(null);
 
-    fetch(`/api/dashboard?year=${selectedYear}`, { cache: "no-store" })
+    fetchWithAuth(`/api/dashboard?year=${selectedYear}`, { cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) {
           const payload = await response.json().catch(() => ({}));
@@ -55,7 +56,7 @@ export default function HeatmapPage() {
     const parsed = Number(value);
     if (!Number.isFinite(parsed)) return;
     try {
-      const response = await fetch("/api/years", {
+      const response = await fetchWithAuth("/api/years", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ year: parsed })

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { format as formatDate } from "date-fns";
+import { fetchWithAuth } from "@/lib/supabase/browser";
 import {
   BarChart3,
   Calendar,
@@ -59,7 +60,7 @@ export default function AnalyticsPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/analytics?period=${period}`);
+      const res = await fetchWithAuth(`/api/analytics?period=${period}`);
       if (res.ok) {
         const payload = await res.json();
         setData(payload);

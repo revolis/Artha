@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { format } from "date-fns";
+import { fetchWithAuth } from "@/lib/supabase/browser";
 import {
     Download,
     Share2,
@@ -68,7 +69,7 @@ export function ReportList({ reports, loading, onRefresh }: ReportListProps) {
         if (!deleteId) return;
         setDeleting(true);
         try {
-            await fetch(`/api/reports/${deleteId}`, { method: "DELETE" });
+            await fetchWithAuth(`/api/reports/${deleteId}`, { method: "DELETE" });
             onRefresh();
         } catch (err) {
             console.error(err);
@@ -82,7 +83,7 @@ export function ReportList({ reports, loading, onRefresh }: ReportListProps) {
         // If enabling, optimistically update UI or handle loading?
         // Let's do a quick local update + fetch
         try {
-            const res = await fetch(`/api/reports/${report.id}`, {
+            const res = await fetchWithAuth(`/api/reports/${report.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ share_enabled: enabled })

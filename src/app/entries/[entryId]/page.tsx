@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
+import { fetchWithAuth } from "@/lib/supabase/browser";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { EntryForm, EntryFormData } from "@/components/entry-form";
@@ -22,8 +23,8 @@ export default function EditEntryPage() {
   React.useEffect(() => {
     let active = true;
     Promise.all([
-      fetch(`/api/entries/${entryId}`),
-      fetch(`/api/entries/${entryId}/attachments`)
+      fetchWithAuth(`/api/entries/${entryId}`),
+      fetchWithAuth(`/api/entries/${entryId}/attachments`)
     ]).then(async ([entryRes, attachRes]) => {
       if (!entryRes.ok) throw new Error("Entry not found");
       const entryPayload = await entryRes.json();
@@ -47,7 +48,7 @@ export default function EditEntryPage() {
   const handleSubmit = async (data: EntryFormData) => {
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/entries/${entryId}`, {
+      const res = await fetchWithAuth(`/api/entries/${entryId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
@@ -64,7 +65,7 @@ export default function EditEntryPage() {
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      await fetch(`/api/entries/${entryId}`, { method: "DELETE" });
+      await fetchWithAuth(`/api/entries/${entryId}`, { method: "DELETE" });
       router.replace("/entries");
       router.refresh();
     } catch (e) {

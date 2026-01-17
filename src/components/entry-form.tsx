@@ -4,6 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 
+import { fetchWithAuth } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -93,10 +94,10 @@ export function EntryForm({ initialData, onSubmit, onDelete, isSubmitting, isDel
         let active = true;
 
         Promise.all([
-            fetch("/api/categories").then(res => res.json()),
-            fetch("/api/sources").then(res => res.json()),
-            fetch("/api/tags").then(res => res.json()),
-            fetch("/api/drive/status").then(res => res.ok ? res.json() : { connected: false })
+            fetchWithAuth("/api/categories").then(res => res.json()),
+            fetchWithAuth("/api/sources").then(res => res.json()),
+            fetchWithAuth("/api/tags").then(res => res.json()),
+            fetchWithAuth("/api/drive/status").then(res => res.ok ? res.json() : { connected: false })
         ]).then(([catData, srcData, tagData, driveData]) => {
             if (!active) return;
             setCategories(catData.categories ?? []);
@@ -144,7 +145,7 @@ export function EntryForm({ initialData, onSubmit, onDelete, isSubmitting, isDel
         setCreatingTag(true);
         setTagError(null);
         try {
-            const res = await fetch("/api/tags", {
+            const res = await fetchWithAuth("/api/tags", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name: newTagName.trim() })
@@ -168,7 +169,7 @@ export function EntryForm({ initialData, onSubmit, onDelete, isSubmitting, isDel
             const formData = new FormData();
             formData.append("entry_id", initialData.id);
             formData.append("file", file);
-            const res = await fetch("/api/drive/upload", { method: "POST", body: formData });
+            const res = await fetchWithAuth("/api/drive/upload", { method: "POST", body: formData });
             if (!res.ok) throw new Error("Upload failed");
             const { attachment } = await res.json();
             setAttachments(prev => [attachment, ...prev]);
@@ -183,7 +184,7 @@ export function EntryForm({ initialData, onSubmit, onDelete, isSubmitting, isDel
         if (!attachmentToDelete || !initialData?.id) return;
         setDeletingAttachment(true);
         try {
-            const res = await fetch(`/api/entries/${initialData.id}/attachments/${attachmentToDelete.id}`, { method: "DELETE" });
+            const res = await fetchWithAuth(`/api/entries/${initialData.id}/attachments/${attachmentToDelete.id}`, { method: "DELETE" });
             if (!res.ok) throw new Error("Delete failed");
             setAttachments(prev => prev.filter(a => a.id !== attachmentToDelete.id));
             setAttachmentToDelete(null);
@@ -284,7 +285,7 @@ export function EntryForm({ initialData, onSubmit, onDelete, isSubmitting, isDel
                     <h3 className="text-lg font-semibold">Attachments</h3>
                     {!driveConnected ? (
                         <Button type="button" variant="outline" onClick={async () => {
-                            const res = await fetch("/api/drive/auth");
+                            const res = await fetchWithAuth("/api/drive/auth");
                             if (res.ok) window.location.href = (await res.json()).url;
                         }}>Connect Drive</Button>
                     ) : initialData?.id ? (

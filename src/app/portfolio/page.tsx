@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { fetchWithAuth } from "@/lib/supabase/browser";
 import { PageHeader } from "@/components/page-header";
 import { ChartCard } from "@/components/chart-card";
 import { PortfolioAreaChart } from "@/components/charts/portfolio-area-chart";
@@ -23,7 +24,7 @@ export default function PortfolioPage() {
     setLoading(true);
     setError(null);
 
-    fetch(`/api/portfolio/snapshots?year=${selectedYear}`, { cache: "no-store" })
+    fetchWithAuth(`/api/portfolio/snapshots?year=${selectedYear}`, { cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) {
           const payload = await response.json().catch(() => ({}));
