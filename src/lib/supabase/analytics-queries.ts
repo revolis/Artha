@@ -53,11 +53,30 @@ export async function getAnalyticsData(
             previousEnd = new Date(start.getTime() - 1);
             break;
         case "all":
-            start = new Date(0); // Beginning of time
-            // For "all" time, there's no meaningful previous period
+            // For "all" time, we'll fetch earliest entry date below
+            // Temporarily set start to null, will be updated after query
+            start = new Date(0); // Placeholder - will be updated
             previousStart = new Date(0);
             previousEnd = new Date(0);
             break;
+    }
+
+    // For "all" period, get the earliest entry date from the database
+    if (period === "all") {
+        const { data: earliestEntry } = await supabase
+            .from("entries")
+            .select("entry_date")
+            .eq("user_id", userId)
+            .order("entry_date", { ascending: true })
+            .limit(1)
+            .single();
+        
+        if (earliestEntry?.entry_date) {
+            start = new Date(earliestEntry.entry_date);
+        } else {
+            // No entries, default to start of current year
+            start = startOfYear(now);
+        }
     }
 
     if (customStart && customEnd) {
