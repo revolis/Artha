@@ -276,8 +276,13 @@ export async function POST(request: Request) {
     const text = response.text();
 
     return NextResponse.json({ analysis: text });
-  } catch (error) {
+  } catch (error: any) {
     console.error("AI Generation failed:", error);
-    return NextResponse.json({ error: "Failed to generate insights" }, { status: 500 });
+    const errorMessage = error?.message || error?.toString() || "Unknown error";
+    const errorStatus = error?.status || 500;
+    return NextResponse.json({ 
+      error: "Failed to generate insights", 
+      details: errorMessage 
+    }, { status: errorStatus });
   }
 }

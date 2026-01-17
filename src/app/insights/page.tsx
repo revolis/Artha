@@ -118,7 +118,10 @@ export default function InsightsPage() {
       const payload = await response.json();
 
       if (!response.ok) {
-        throw new Error(payload.error || "Failed to generate insights");
+        const errorMsg = payload.details 
+          ? `${payload.error}: ${payload.details}` 
+          : (payload.error || "Failed to generate insights");
+        throw new Error(errorMsg);
       }
 
       setAnalysis(payload.analysis);
