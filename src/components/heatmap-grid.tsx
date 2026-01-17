@@ -191,20 +191,36 @@ export function HeatmapGrid({ year, data }: HeatmapGridProps) {
                 })
               )}
             </div>
-            <div className="mt-3 flex items-center justify-end gap-2 text-[10px] text-mutedForeground">
-              <span>Less</span>
-              <div className="flex items-center gap-[2px]">
-                {positiveScale.map((tone, index) => (
-                  <span
-                    key={`legend-${index}`}
-                    className={cn(
-                      "h-[10px] w-[10px] rounded-[2px] border border-border/60",
-                      tone
-                    )}
-                  />
-                ))}
+            <div className="mt-3 flex items-center justify-end gap-4 text-[10px] text-mutedForeground">
+              <div className="flex items-center gap-2">
+                <span>Loss</span>
+                <div className="flex items-center gap-[2px]">
+                  {negativeScale.slice(1).reverse().map((tone, index) => (
+                    <span
+                      key={`legend-neg-${index}`}
+                      className={cn(
+                        "h-[10px] w-[10px] rounded-[2px] border border-border/60",
+                        tone
+                      )}
+                    />
+                  ))}
+                </div>
               </div>
-              <span>More</span>
+              <span className="h-[10px] w-[10px] rounded-[2px] border border-border/60 bg-muted/40" />
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-[2px]">
+                  {positiveScale.slice(1).map((tone, index) => (
+                    <span
+                      key={`legend-pos-${index}`}
+                      className={cn(
+                        "h-[10px] w-[10px] rounded-[2px] border border-border/60",
+                        tone
+                      )}
+                    />
+                  ))}
+                </div>
+                <span>Profit</span>
+              </div>
             </div>
           </div>
         </div>
