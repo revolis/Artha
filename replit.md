@@ -83,6 +83,19 @@ The application uses Supabase's hosted PostgreSQL database. Database schema migr
 
 ## Recent Changes
 
+- 2026-01-17: Comprehensive Analytics page overhaul
+  - Default period changed to "All Time" for complete financial overview
+  - Fixed date range to include future-dated entries (uses actual min/max entry dates)
+  - Added income breakdown by category (mirroring expense breakdown)
+  - Added platform/source performance table (income + expenses per source)
+  - Added transaction statistics (counts, averages, largest transactions)
+  - Added financial ratios (savings rate, expense ratio)
+  - Added best/worst month insights with highlighted cards
+  - Enhanced chart with ComposedChart showing income bars, expense bars, and net profit line
+  - Added monthly trends line chart for pattern analysis
+  - Added top income entries section alongside top expenses
+  - Chart grouping optimized: daily (<60d), weekly (60-180d), monthly (180-730d), yearly (>730d)
+
 - 2026-01-17: Analytics feature fixes and data integrity improvements
   - Fixed Supabase array join normalization for categories/sources
   - Added proper error handling with throw on Supabase errors

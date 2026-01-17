@@ -210,21 +210,102 @@ export async function getAnalyticsData(
 
     // 5. Breakdowns
 
-    // By Category - use Math.abs to normalize amounts
-    const categoryStats: Record<string, number> = {};
+    // Expense categories breakdown
+    const expenseCategoryStats: Record<string, number> = {};
     currentEntries.forEach(e => {
         if (['loss', 'fee', 'tax'].includes(e.entry_type)) {
             const catName = e.categories?.name || "Uncategorized";
-            categoryStats[catName] = (categoryStats[catName] || 0) + Math.abs(Number(e.amount_usd_base) || 0);
+            expenseCategoryStats[catName] = (expenseCategoryStats[catName] || 0) + Math.abs(Number(e.amount_usd_base) || 0);
         }
     });
 
-    const categoryBreakdown = Object.entries(categoryStats)
+    const categoryBreakdown = Object.entries(expenseCategoryStats)
         .map(([name, value]) => ({ name, value }))
         .sort((a, b) => b.value - a.value)
-        .slice(0, 10); // Top 10
+        .slice(0, 10);
 
-    // 6. Best/Worst Days (Income/Expense) - sort by absolute values
+    // Income categories breakdown
+    const incomeCategoryStats: Record<string, number> = {};
+    currentEntries.forEach(e => {
+        if (e.entry_type === 'profit') {
+            const catName = e.categories?.name || "Uncategorized";
+            incomeCategoryStats[catName] = (incomeCategoryStats[catName] || 0) + Math.abs(Number(e.amount_usd_base) || 0);
+        }
+    });
+
+    const incomeBreakdown = Object.entries(incomeCategoryStats)
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 10);
+
+    // Source breakdown (platforms)
+    const sourceStats: Record<string, { income: number; expenses: number }> = {};
+    currentEntries.forEach(e => {
+        const sourceName = e.sources?.platform || "Direct";
+        if (!sourceStats[sourceName]) {
+            sourceStats[sourceName] = { income: 0, expenses: 0 };
+        }
+        const amount = Math.abs(Number(e.amount_usd_base) || 0);
+        if (e.entry_type === 'profit') {
+            sourceStats[sourceName].income += amount;
+        } else if (['loss', 'fee', 'tax'].includes(e.entry_type)) {
+            sourceStats[sourceName].expenses += amount;
+        }
+    });
+
+    const sourceBreakdown = Object.entries(sourceStats)
+        .map(([name, data]) => ({ name, ...data, net: data.income - data.expenses }))
+        .sort((a, b) => b.net - a.net);
+
+    // 6. Transaction counts and averages
+    const incomeEntries = currentEntries.filter(e => e.entry_type === 'profit');
+    const expenseEntries = currentEntries.filter(e => ['loss', 'fee', 'tax'].includes(e.entry_type));
+    
+    const transactionStats = {
+        totalTransactions: currentEntries.length,
+        incomeCount: incomeEntries.length,
+        expenseCount: expenseEntries.length,
+        avgIncome: incomeEntries.length > 0 ? currentTotals.income / incomeEntries.length : 0,
+        avgExpense: expenseEntries.length > 0 ? currentTotals.expenses / expenseEntries.length : 0,
+        largestIncome: incomeEntries.length > 0 ? Math.max(...incomeEntries.map(e => Math.abs(Number(e.amount_usd_base) || 0))) : 0,
+        largestExpense: expenseEntries.length > 0 ? Math.max(...expenseEntries.map(e => Math.abs(Number(e.amount_usd_base) || 0))) : 0,
+    };
+
+    // 7. Financial ratios
+    const savingsRate = currentTotals.income > 0 ? ((currentTotals.net / currentTotals.income) * 100) : 0;
+    const expenseRatio = currentTotals.income > 0 ? ((currentTotals.expenses / currentTotals.income) * 100) : 0;
+
+    // 8. Monthly trends (for pattern analysis)
+    const monthlyData: Record<string, { income: number; expenses: number; net: number }> = {};
+    currentEntries.forEach(e => {
+        const monthKey = format(new Date(e.entry_date), "yyyy-MM");
+        if (!monthlyData[monthKey]) {
+            monthlyData[monthKey] = { income: 0, expenses: 0, net: 0 };
+        }
+        const amount = Math.abs(Number(e.amount_usd_base) || 0);
+        if (e.entry_type === 'profit') {
+            monthlyData[monthKey].income += amount;
+        } else if (['loss', 'fee', 'tax'].includes(e.entry_type)) {
+            monthlyData[monthKey].expenses += amount;
+        }
+    });
+    Object.keys(monthlyData).forEach(key => {
+        monthlyData[key].net = monthlyData[key].income - monthlyData[key].expenses;
+    });
+
+    const monthlyTrends = Object.entries(monthlyData)
+        .map(([month, data]) => ({ month, ...data }))
+        .sort((a, b) => a.month.localeCompare(b.month));
+
+    // 9. Best and worst months
+    const bestMonth = monthlyTrends.length > 0 
+        ? monthlyTrends.reduce((best, curr) => curr.net > best.net ? curr : best, monthlyTrends[0])
+        : null;
+    const worstMonth = monthlyTrends.length > 0
+        ? monthlyTrends.reduce((worst, curr) => curr.net < worst.net ? curr : worst, monthlyTrends[0])
+        : null;
+
+    // 10. Best/Worst entries (Income/Expense)
     const topIncomeFn = (entries: any[]) => entries
         .filter(e => e.entry_type === 'profit')
         .sort((a, b) => Math.abs(Number(b.amount_usd_base) || 0) - Math.abs(Number(a.amount_usd_base) || 0))
@@ -243,6 +324,18 @@ export async function getAnalyticsData(
         },
         chartData: timeSeries,
         categoryBreakdown,
+        incomeBreakdown,
+        sourceBreakdown,
+        transactionStats,
+        financialRatios: {
+            savingsRate,
+            expenseRatio,
+        },
+        monthlyTrends,
+        insights: {
+            bestMonth,
+            worstMonth,
+        },
         topEntries: {
             income: topIncomeFn(currentEntries),
             expenses: topExpenseFn(currentEntries)
