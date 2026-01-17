@@ -67,8 +67,8 @@ src/
 - `NEXT_PUBLIC_GOOGLE_DRIVE_API_KEY`
 - `NEXT_PUBLIC_GOOGLE_DRIVE_APP_ID`
 
-### Gemini AI (Optional)
-- `GEMINI_API_KEY` - Google Gemini API key for AI insights
+### OpenAI (Optional)
+- `OPENAI_API_KEY` - OpenAI API key for AI insights (ChatGPT)
 
 ### App Configuration
 - `NEXT_PUBLIC_APP_URL` - Application URL (auto-set by Replit)
@@ -82,6 +82,13 @@ The app runs on port 5000 with the workflow "Next.js Dev Server".
 The application uses Supabase's hosted PostgreSQL database. Database schema migrations are located in the `supabase/` directory.
 
 ## Recent Changes
+
+- 2026-01-17: AI Insights switched from Gemini to ChatGPT
+  - Replaced Google Gemini API with OpenAI ChatGPT (gpt-4o-mini)
+  - Renamed sidebar menu from "Gemini Insights" to "AI Insights"
+  - Redesigned UI to match website theme (removed colorful gradients, logos, emojis)
+  - Clean, professional card-based design with accent color highlights
+  - Session caching for 30 minutes to reduce API calls
 
 - 2026-01-17: Year deletion feature fixed
   - Replaced stored procedure calls with direct Supabase queries
