@@ -86,7 +86,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       )}
 
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 flex-col gap-6 border-r border-border bg-card px-6 py-8 transition-transform duration-300 lg:static lg:translate-x-0 lg:flex",
+        "fixed inset-y-0 left-0 z-50 w-64 flex-col gap-6 border-r border-border/60 bg-[#f5f2ed] px-6 py-8 transition-transform duration-300 lg:static lg:translate-x-0 lg:flex",
         mobileMenuOpen ? "translate-x-0 flex" : "-translate-x-full hidden lg:flex"
       )}>
         <div className="flex items-center justify-between">
@@ -126,8 +126,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </Button>
       </aside>
 
-      <div className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between gap-4 border-b border-border bg-card/60 px-4 py-4 backdrop-blur sm:px-6">
+      <div className="flex flex-1 flex-col bg-[#faf8f5]">
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-border/50 bg-[#faf8f5]/95 px-4 py-4 backdrop-blur-sm sm:px-6">
           <div className="flex items-center gap-3">
             <Button 
               variant="ghost" 
@@ -138,14 +138,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Menu className="h-5 w-5" />
             </Button>
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-mutedForeground">
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
                 ARTHA MgMt
               </p>
-              <h2 className="text-lg font-semibold">Financial Overview</h2>
+              <h2 className="text-lg font-semibold text-foreground">Financial Overview</h2>
             </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
-            <Button variant="outline" size="icon" onClick={toggle} title={enabled ? "Disable Private Mode" : "Enable Private Mode"}>
+            <Button variant="outline" size="icon" onClick={toggle} className="bg-white/80" title={enabled ? "Disable Private Mode" : "Enable Private Mode"}>
               {enabled ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </Button>
             <SignOutButton />
