@@ -99,9 +99,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
-        <Button variant="outline" className="justify-start gap-2" onClick={toggle}>
+        <Button variant="outline" size="icon" onClick={toggle} title={enabled ? "Disable Private Mode" : "Enable Private Mode"}>
           {enabled ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-          Private Mode
         </Button>
       </aside>
 
@@ -114,9 +113,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <h2 className="text-lg font-semibold">Financial Overview</h2>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={toggle} className="gap-2">
+            <Button variant="outline" size="icon" onClick={toggle} title={enabled ? "Disable Private Mode" : "Enable Private Mode"}>
               {enabled ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              Private
             </Button>
             <SignOutButton />
           </div>
