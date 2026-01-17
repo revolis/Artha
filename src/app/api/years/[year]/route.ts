@@ -25,48 +25,42 @@ export async function GET(
     const startDate = `${year}-01-01`;
     const endDate = `${year}-12-31`;
 
-    const [entriesResult, goalsResult, snapshotsResult] = await Promise.all([
+    const [entriesData, goalsData, snapshotsData] = await Promise.all([
       supabase
         .from("entries")
-        .select("id", { count: "exact", head: true })
+        .select("id")
         .eq("user_id", user.id)
         .gte("entry_date", startDate)
         .lte("entry_date", endDate),
       supabase
         .from("goals")
-        .select("id", { count: "exact", head: true })
+        .select("id")
         .eq("user_id", user.id)
         .eq("year", year),
       supabase
         .from("portfolio_snapshots")
-        .select("id", { count: "exact", head: true })
+        .select("id")
         .eq("user_id", user.id)
         .gte("snapshot_date", startDate)
         .lte("snapshot_date", endDate)
     ]);
 
-    const { data: entryIds } = await supabase
-      .from("entries")
-      .select("id")
-      .eq("user_id", user.id)
-      .gte("entry_date", startDate)
-      .lte("entry_date", endDate);
-
+    const entryIds = entriesData.data || [];
     let attachmentsCount = 0;
-    if (entryIds && entryIds.length > 0) {
-      const { count } = await supabase
+    if (entryIds.length > 0) {
+      const { data: attachments } = await supabase
         .from("attachments")
-        .select("id", { count: "exact", head: true })
+        .select("id")
         .in("entry_id", entryIds.map(e => e.id));
-      attachmentsCount = count || 0;
+      attachmentsCount = attachments?.length || 0;
     }
 
     return NextResponse.json({
       year,
-      entries: entriesResult.count ?? 0,
-      goals: goalsResult.count ?? 0,
+      entries: entryIds.length,
+      goals: goalsData.data?.length ?? 0,
       attachments: attachmentsCount,
-      snapshots: snapshotsResult.count ?? 0
+      snapshots: snapshotsData.data?.length ?? 0
     });
   } catch (error) {
     console.error("Year summary error:", error);
@@ -117,36 +111,34 @@ export async function DELETE(
           .filter(a => a.drive_file_id)
           .map(a => a.drive_file_id as string);
 
-        const { count } = await supabase
+        await supabase
           .from("attachments")
           .delete()
-          .in("entry_id", ids)
-          .select("id", { count: "exact", head: true });
-        attachmentsDeleted = count || attachments.length;
+          .in("entry_id", ids);
+        attachmentsDeleted = attachments.length;
       }
     }
 
-    const [entriesResult, goalsResult, snapshotsResult] = await Promise.all([
+    const entriesCount = entryIds?.length || 0;
+    
+    await Promise.all([
       supabase
         .from("entries")
         .delete()
         .eq("user_id", user.id)
         .gte("entry_date", startDate)
-        .lte("entry_date", endDate)
-        .select("id", { count: "exact", head: true }),
+        .lte("entry_date", endDate),
       supabase
         .from("goals")
         .delete()
         .eq("user_id", user.id)
-        .eq("year", year)
-        .select("id", { count: "exact", head: true }),
+        .eq("year", year),
       supabase
         .from("portfolio_snapshots")
         .delete()
         .eq("user_id", user.id)
         .gte("snapshot_date", startDate)
         .lte("snapshot_date", endDate)
-        .select("id", { count: "exact", head: true })
     ]);
 
     const storageErrors: string[] = [];
@@ -181,10 +173,10 @@ export async function DELETE(
     return NextResponse.json({
       ok: true,
       deleted: {
-        entries: entriesResult.count ?? 0,
-        goals: goalsResult.count ?? 0,
+        entries: entriesCount,
+        goals: 0,
         attachments: attachmentsDeleted,
-        snapshots: snapshotsResult.count ?? 0
+        snapshots: 0
       },
       storageErrors
     });
