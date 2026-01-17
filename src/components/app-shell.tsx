@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -90,7 +91,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         mobileMenuOpen ? "translate-x-0 flex" : "-translate-x-full hidden lg:flex"
       )}>
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">ARTHA MgMt</h1>
+          <Link href="/" className="flex items-center gap-2">
+            <Image 
+              src="/logo.png" 
+              alt="ARTHA" 
+              width={40} 
+              height={40}
+              className="h-10 w-10"
+            />
+          </Link>
           <Button 
             variant="ghost" 
             size="icon" 
