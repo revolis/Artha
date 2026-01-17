@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ years, dashboard });
   } catch (err) {
+    console.error("Dashboard error:", err);
     return NextResponse.json({ error: "Failed to load dashboard" }, { status: 500 });
   }
 }
