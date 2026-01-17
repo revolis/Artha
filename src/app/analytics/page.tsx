@@ -146,6 +146,15 @@ export default function AnalyticsPage() {
     }
   };
 
+  const getDateRangeLabel = () => {
+    if (!meta?.start || !meta?.end) return "";
+    try {
+      return `${formatDate(new Date(meta.start), "MMM d, yyyy")} - ${formatDate(new Date(meta.end), "MMM d, yyyy")}`;
+    } catch {
+      return "";
+    }
+  };
+
   return (
     <div className="container max-w-6xl py-8 space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -154,6 +163,11 @@ export default function AnalyticsPage() {
           <p className="text-muted-foreground">
             Comprehensive analysis of your financial performance
           </p>
+          {meta?.entryCount !== undefined && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {meta.entryCount} entries · {getDateRangeLabel()}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <Select value={period} onValueChange={setPeriod}>
@@ -468,7 +482,7 @@ export default function AnalyticsPage() {
                       {entry.notes || entry.categories?.name || "Uncategorized"}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {formatDate(new Date(entry.entry_date), "MMM d, yyyy")}
+                      {formatDate(new Date(entry.entry_date), "MMM d, yyyy")} · <span className="uppercase">{entry.entry_type}</span>
                     </p>
                   </div>
                   <div className="font-mono font-medium text-emerald-600">
@@ -499,7 +513,7 @@ export default function AnalyticsPage() {
                       {entry.notes || entry.categories?.name || "Uncategorized"}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {formatDate(new Date(entry.entry_date), "MMM d, yyyy")}
+                      {formatDate(new Date(entry.entry_date), "MMM d, yyyy")} · <span className="uppercase">{entry.entry_type}</span>
                     </p>
                   </div>
                   <div className="font-mono font-medium text-red-600">
