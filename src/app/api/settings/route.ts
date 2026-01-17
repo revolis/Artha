@@ -1,8 +1,21 @@
 import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
 import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+import { isAuthDisabled } from "@/lib/mock-data";
+
+const mockSettings = {
+    user_id: "00000000-0000-0000-0000-000000000000",
+    display_currency_mode: "usd",
+    fx_mode: "stored_only",
+    fx_manual_rate_usd_npr: null,
+    private_mode_default: false,
+};
 
 export async function GET(request: NextRequest) {
+    if (isAuthDisabled()) {
+        return NextResponse.json({ settings: mockSettings });
+    }
+
     const { client: supabase } = createSupabaseRouteClient();
     const user = await getAuthenticatedUser();
 
@@ -44,6 +57,11 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+    if (isAuthDisabled()) {
+        const body = await request.json().catch(() => null);
+        return NextResponse.json({ settings: { ...mockSettings, ...body } });
+    }
+
     const { client: supabase } = createSupabaseRouteClient();
     const user = await getAuthenticatedUser();
 

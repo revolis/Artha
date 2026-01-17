@@ -36,6 +36,10 @@ const portfolioSeries2026 = [
   { date: "Jun", value: 74250 }
 ];
 
+export function isAuthDisabled() {
+  return process.env.DISABLE_AUTH === "true";
+}
+
 export const dashboardYears: DashboardYear[] = [
   {
     year: 2025,
@@ -125,15 +129,21 @@ export const dashboardYears: DashboardYear[] = [
     targets: [
       {
         id: "t-2026-1",
-        title: "Target for 2026",
+        title: "Income Target",
         subtitle: "Annual income goal",
-        progress: 0.58
+        progress: 1.52
       },
       {
         id: "t-2026-2",
-        title: "Target until June",
+        title: "Net P/L Target",
         subtitle: "H1 milestone",
-        progress: 0.74
+        progress: 2.05
+      },
+      {
+        id: "t-2026-3",
+        title: "Q1 Goal",
+        subtitle: "Quarterly target",
+        progress: 0.85
       }
     ],
     portfolio: {
