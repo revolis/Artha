@@ -33,7 +33,13 @@ const portfolioSeries2026 = [
   { date: "Mar", value: 60200 },
   { date: "Apr", value: 66000 },
   { date: "May", value: 70100 },
-  { date: "Jun", value: 74250 }
+  { date: "Jun", value: 74250 },
+  { date: "Jul", value: 76800 },
+  { date: "Aug", value: 79200 },
+  { date: "Sep", value: 82500 },
+  { date: "Oct", value: 85100 },
+  { date: "Nov", value: 88400 },
+  { date: "Dec", value: 92000 }
 ];
 
 export function isAuthDisabled() {
@@ -68,7 +74,13 @@ export const dashboardYears: DashboardYear[] = [
         { date: "Mar", net: 880 },
         { date: "Apr", net: 1220 },
         { date: "May", net: 980 },
-        { date: "Jun", net: 1350 }
+        { date: "Jun", net: 1350 },
+        { date: "Jul", net: 1480 },
+        { date: "Aug", net: -320 },
+        { date: "Sep", net: 1640 },
+        { date: "Oct", net: 1120 },
+        { date: "Nov", net: 1780 },
+        { date: "Dec", net: 1550 }
       ],
       quarterly: [
         { date: "Q1", net: 2840 },
@@ -81,11 +93,11 @@ export const dashboardYears: DashboardYear[] = [
         { date: "H2", net: 7670 }
       ],
       yearly: [
-        { date: "2025", net: 9840 }
+        { date: "2025", net: 14060 }
       ],
       all: [
         { date: "2024", net: 8420 },
-        { date: "2025", net: 9840 }
+        { date: "2025", net: 14060 }
       ]
     },
     categoryContribution: [
@@ -101,7 +113,13 @@ export const dashboardYears: DashboardYear[] = [
       { date: "Mar", value: 54500 },
       { date: "Apr", value: 59800 },
       { date: "May", value: 63100 },
-      { date: "Jun", value: 66840 }
+      { date: "Jun", value: 66840 },
+      { date: "Jul", value: 69200 },
+      { date: "Aug", value: 71500 },
+      { date: "Sep", value: 74800 },
+      { date: "Oct", value: 78100 },
+      { date: "Nov", value: 81400 },
+      { date: "Dec", value: 85000 }
     ],
     recentEntries: [
       {
@@ -163,25 +181,31 @@ export const dashboardYears: DashboardYear[] = [
         { date: "Mar", net: 980 },
         { date: "Apr", net: 1640 },
         { date: "May", net: 2100 },
-        { date: "Jun", net: 1320 }
+        { date: "Jun", net: 1320 },
+        { date: "Jul", net: 1850 },
+        { date: "Aug", net: 920 },
+        { date: "Sep", net: 1050 },
+        { date: "Oct", net: -480 },
+        { date: "Nov", net: 1720 },
+        { date: "Dec", net: 2340 }
       ],
       quarterly: [
         { date: "Q1", net: 1840 },
         { date: "Q2", net: 5060 },
         { date: "Q3", net: 3820 },
-        { date: "Q4", net: 2120 }
+        { date: "Q4", net: 3580 }
       ],
       halfYear: [
         { date: "H1", net: 6900 },
-        { date: "H2", net: 5940 }
+        { date: "H2", net: 7400 }
       ],
       yearly: [
-        { date: "2026", net: 12840 }
+        { date: "2026", net: 14300 }
       ],
       all: [
         { date: "2024", net: 8100 },
-        { date: "2025", net: 9840 },
-        { date: "2026", net: 12840 }
+        { date: "2025", net: 14060 },
+        { date: "2026", net: 14300 }
       ]
     },
     categoryContribution: [
@@ -261,25 +285,31 @@ export const dashboardYears: DashboardYear[] = [
         { date: "Mar", net: 780 },
         { date: "Apr", net: 920 },
         { date: "May", net: 1100 },
-        { date: "Jun", net: 860 }
+        { date: "Jun", net: 860 },
+        { date: "Jul", net: 1240 },
+        { date: "Aug", net: -180 },
+        { date: "Sep", net: 1340 },
+        { date: "Oct", net: 980 },
+        { date: "Nov", net: 1560 },
+        { date: "Dec", net: 1860 }
       ],
       quarterly: [
         { date: "Q1", net: 1740 },
         { date: "Q2", net: 2880 },
         { date: "Q3", net: 2400 },
-        { date: "Q4", net: 2400 }
+        { date: "Q4", net: 4400 }
       ],
       halfYear: [
         { date: "H1", net: 4620 },
-        { date: "H2", net: 1800 }
+        { date: "H2", net: 6800 }
       ],
       yearly: [
-        { date: "2027", net: 6420 }
+        { date: "2027", net: 11420 }
       ],
       all: [
-        { date: "2025", net: 9840 },
-        { date: "2026", net: 12840 },
-        { date: "2027", net: 6420 }
+        { date: "2025", net: 14060 },
+        { date: "2026", net: 14300 },
+        { date: "2027", net: 11420 }
       ]
     },
     categoryContribution: [
@@ -295,7 +325,13 @@ export const dashboardYears: DashboardYear[] = [
       { date: "Mar", value: 78900 },
       { date: "Apr", value: 79800 },
       { date: "May", value: 80400 },
-      { date: "Jun", value: 81200 }
+      { date: "Jun", value: 81200 },
+      { date: "Jul", value: 83500 },
+      { date: "Aug", value: 85200 },
+      { date: "Sep", value: 88100 },
+      { date: "Oct", value: 90800 },
+      { date: "Nov", value: 94200 },
+      { date: "Dec", value: 98500 }
     ],
     recentEntries: [
       {
