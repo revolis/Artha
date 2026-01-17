@@ -2,6 +2,7 @@
 
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { createSupabaseBrowserClient, clearAuthToken } from "@/lib/supabase/browser";
@@ -30,6 +31,18 @@ function clearAllStorage() {
 
 export function SignOutButton() {
   const router = useRouter();
+  const [email, setEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const supabase = createSupabaseBrowserClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.email) {
+        setEmail(user.email);
+      }
+    };
+    fetchUser();
+  }, []);
 
   const handleSignOut = async () => {
     const supabase = createSupabaseBrowserClient();
@@ -40,9 +53,16 @@ export function SignOutButton() {
   };
 
   return (
-    <Button variant="outline" onClick={handleSignOut} className="gap-2">
-      <LogOut className="h-4 w-4" />
-      Sign Out
-    </Button>
+    <div className="flex items-center gap-3">
+      {email && (
+        <span className="hidden text-sm text-mutedForeground md:inline truncate max-w-[180px]" title={email}>
+          {email}
+        </span>
+      )}
+      <Button variant="outline" onClick={handleSignOut} className="gap-2">
+        <LogOut className="h-4 w-4" />
+        Sign Out
+      </Button>
+    </div>
   );
 }
