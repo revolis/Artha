@@ -209,10 +209,16 @@ function EntriesFallback() {
 function EntriesContent() {
   const searchParams = useSearchParams();
   const currentYear = new Date().getUTCFullYear();
-  const queryYear = Number(searchParams.get("year"));
-  const [selectedYear, setSelectedYear] = React.useState(
-    Number.isFinite(queryYear) ? queryYear : currentYear
-  );
+  const queryYearParam = searchParams.get("year");
+  const queryYear = queryYearParam ? Number(queryYearParam) : null;
+  const initialYear = queryYear && Number.isFinite(queryYear) && queryYear > 2000 ? queryYear : currentYear;
+  const [selectedYear, setSelectedYear] = React.useState(initialYear);
+  
+  React.useEffect(() => {
+    if (queryYear && Number.isFinite(queryYear) && queryYear > 2000) {
+      setSelectedYear(queryYear);
+    }
+  }, [queryYear]);
   const [years, setYears] = React.useState<number[]>([currentYear]);
   const [entries, setEntries] = React.useState<EntryListItem[]>([]);
   const [loading, setLoading] = React.useState(true);
