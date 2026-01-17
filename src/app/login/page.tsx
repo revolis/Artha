@@ -9,8 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
-const STORAGE_KEY = 'sb-auth-token';
-
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = React.useState<"signin" | "signup">("signin");
@@ -29,14 +27,11 @@ export default function LoginPage() {
     try {
       const supabase = createSupabaseBrowserClient();
       if (mode === "signin") {
-        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        const { error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password
         });
         if (signInError) throw signInError;
-        if (signInData.session?.access_token) {
-          window.localStorage.setItem(STORAGE_KEY, signInData.session.access_token);
-        }
         router.replace("/");
         router.refresh();
         return;
@@ -49,9 +44,6 @@ export default function LoginPage() {
       if (signUpError) throw signUpError;
 
       if (data.session) {
-        if (data.session.access_token) {
-          window.localStorage.setItem(STORAGE_KEY, data.session.access_token);
-        }
         router.replace("/");
         router.refresh();
       } else {

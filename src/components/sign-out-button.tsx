@@ -6,8 +6,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { createSupabaseBrowserClient, clearAuthToken } from "@/lib/supabase/browser";
 
-const STORAGE_KEY = 'sb-auth-token';
-
 function clearAllStorage() {
   const cookies = document.cookie.split(";");
   for (const cookie of cookies) {
@@ -18,7 +16,6 @@ function clearAllStorage() {
   }
   
   try {
-    window.localStorage.removeItem(STORAGE_KEY);
     clearAuthToken();
     
     const keys = Object.keys(window.localStorage);
