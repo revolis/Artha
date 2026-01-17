@@ -16,72 +16,70 @@ export async function getAnalyticsData(
     customStart?: string,
     customEnd?: string
 ) {
-    // 1. Determine Date Range
+    // 1. First, get the actual date range of entries in the database
+    // This ensures we include all data, even future-dated entries
+    const { data: dateRange } = await supabase
+        .from("entries")
+        .select("entry_date")
+        .eq("user_id", userId)
+        .order("entry_date", { ascending: true });
+    
+    const entryDates = (dateRange ?? []).map(e => new Date(e.entry_date));
+    const earliestEntryDate = entryDates.length > 0 ? entryDates[0] : new Date();
+    const latestEntryDate = entryDates.length > 0 ? entryDates[entryDates.length - 1] : new Date();
+    
+    // Use the later of: today or the latest entry date
     const now = new Date();
+    const effectiveEnd = latestEntryDate > now ? latestEntryDate : now;
+    
     let start = new Date();
-    let end = new Date(now.getTime()); // Default to current time
+    let end = new Date(effectiveEnd.getTime());
     let previousStart = new Date();
-    let previousEnd = new Date(); // To calculate growth
+    let previousEnd = new Date();
 
-    // Calculate date ranges for current and previous periods
-    // Both periods use inclusive bounds [start, end] for symmetric comparison
+    // Calculate date ranges based on period
+    // For YTD and year-based periods, use full year range like Dashboard
     switch (period) {
         case "7d":
-            start = subDays(now, 7);
+            start = subDays(effectiveEnd, 7);
             previousStart = subDays(start, 7);
-            previousEnd = new Date(start.getTime() - 1); // 1ms before start to avoid overlap
+            previousEnd = subDays(start, 1);
             break;
         case "30d":
-            start = subDays(now, 30);
+            start = subDays(effectiveEnd, 30);
             previousStart = subDays(start, 30);
-            previousEnd = new Date(start.getTime() - 1);
+            previousEnd = subDays(start, 1);
             break;
         case "3m":
-            start = subMonths(now, 3);
+            start = subMonths(effectiveEnd, 3);
             previousStart = subMonths(start, 3);
-            previousEnd = new Date(start.getTime() - 1);
+            previousEnd = subDays(start, 1);
             break;
         case "6m":
-            start = subMonths(now, 6);
+            start = subMonths(effectiveEnd, 6);
             previousStart = subMonths(start, 6);
-            previousEnd = new Date(start.getTime() - 1);
+            previousEnd = subDays(start, 1);
             break;
         case "ytd":
-            start = startOfYear(now);
-            // Compare to same period in previous year
-            previousStart = startOfYear(subYears(now, 1));
-            previousEnd = new Date(subYears(end, 1).getTime() - 1);
+            // YTD: Start of current year to end of year (matching Dashboard behavior)
+            start = startOfYear(effectiveEnd);
+            end = new Date(start.getFullYear(), 11, 31); // Dec 31 of same year
+            previousStart = startOfYear(subYears(start, 1));
+            previousEnd = new Date(previousStart.getFullYear(), 11, 31);
             break;
         case "1y":
-            start = subYears(now, 1);
+            start = subYears(effectiveEnd, 1);
             previousStart = subYears(start, 1);
-            previousEnd = new Date(start.getTime() - 1);
+            previousEnd = subDays(start, 1);
             break;
         case "all":
-            // For "all" time, we'll fetch earliest entry date below
-            // Temporarily set start to null, will be updated after query
-            start = new Date(0); // Placeholder - will be updated
+            // All time: from earliest to latest entry
+            start = earliestEntryDate;
+            end = latestEntryDate;
+            // No meaningful previous period for "all"
             previousStart = new Date(0);
             previousEnd = new Date(0);
             break;
-    }
-
-    // For "all" period, get the earliest entry date from the database
-    if (period === "all") {
-        const { data: earliestEntry } = await supabase
-            .from("entries")
-            .select("entry_date")
-            .eq("user_id", userId)
-            .order("entry_date", { ascending: true })
-            .limit(1)
-            .single();
-        
-        if (earliestEntry?.entry_date) {
-            start = new Date(earliestEntry.entry_date);
-        } else {
-            // No entries, default to start of current year
-            start = startOfYear(now);
-        }
     }
 
     if (customStart && customEnd) {
@@ -89,7 +87,7 @@ export async function getAnalyticsData(
         end = new Date(customEnd);
         const duration = end.getTime() - start.getTime();
         previousStart = new Date(start.getTime() - duration);
-        previousEnd = new Date(start.getTime() - 1);
+        previousEnd = subDays(start, 1);
     }
 
     // 2. Fetch Data (Current & Previous)
@@ -163,12 +161,13 @@ export async function getAnalyticsData(
     const prevTotals = calculateTotals(prevEntries);
 
     // 4. Time Series Grouping
-    // Determine intuitive grouping based on duration
+    // Determine intuitive grouping based on duration - optimize for readability
     const durationDays = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
     let grouping: Grouping = 'day';
-    if (durationDays > 365) grouping = 'month';
-    else if (durationDays > 90) grouping = 'week'; // or month
-    else if (durationDays > 30) grouping = 'day'; // or week
+    if (durationDays > 730) grouping = 'year';      // > 2 years: yearly
+    else if (durationDays > 180) grouping = 'month'; // > 6 months: monthly
+    else if (durationDays > 60) grouping = 'week';   // > 2 months: weekly
+    else grouping = 'day';                            // <= 2 months: daily
 
     // Generate intervals
     let intervals: Date[] = [];
@@ -195,6 +194,9 @@ export async function getAnalyticsData(
         } else if (grouping === 'month') {
             label = format(date, "MMM yyyy");
             filterFn = (d) => isSameMonth(d, date);
+        } else if (grouping === 'year') {
+            label = format(date, "yyyy");
+            filterFn = (d) => isSameYear(d, date);
         }
 
         const periodEntries = currentEntries.filter(e => filterFn(new Date(e.entry_date)));
