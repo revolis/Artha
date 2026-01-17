@@ -23,10 +23,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
+const DEFAULT_USD_NPR_RATE = 147;
+
 export default function SettingsPage() {
   const { settings, updateSettings, loading } = useSettings();
-  const [localRate, setLocalRate] = React.useState("135"); // string for input
+  const [localRate, setLocalRate] = React.useState(DEFAULT_USD_NPR_RATE.toString());
   const [saving, setSaving] = React.useState(false);
+  const [settingDefault, setSettingDefault] = React.useState(false);
 
   React.useEffect(() => {
     if (settings?.fx_manual_rate_usd_npr) {
@@ -109,26 +112,46 @@ export default function SettingsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="stored_only">Auto (1 USD = 135 NPR)</SelectItem>
+                    <SelectItem value="stored_only">Auto (1 USD = {DEFAULT_USD_NPR_RATE} NPR)</SelectItem>
                     <SelectItem value="manual">Manual Rate</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {settings.fx_mode === 'manual' && (
-                <div className="flex items-end gap-4 p-4 border rounded-lg bg-muted/30">
-                  <div className="space-y-2 flex-1">
-                    <Label>Manual USD to NPR Rate</Label>
-                    <Input
-                      type="number"
-                      value={localRate}
-                      onChange={(e) => setLocalRate(e.target.value)}
-                      placeholder="e.g. 135.5"
-                    />
+                <div className="p-4 border rounded-lg bg-muted/30 space-y-4">
+                  <div className="flex items-end gap-4">
+                    <div className="space-y-2 flex-1">
+                      <Label>Manual USD to NPR Rate</Label>
+                      <Input
+                        type="number"
+                        value={localRate}
+                        onChange={(e) => setLocalRate(e.target.value)}
+                        placeholder="e.g. 147"
+                      />
+                    </div>
+                    <Button onClick={handleSaveRate} disabled={saving}>
+                      {saving ? "Saving..." : "Save Rate"}
+                    </Button>
                   </div>
-                  <Button onClick={handleSaveRate} disabled={saving}>
-                    {saving ? "Saving..." : "Save Rate"}
-                  </Button>
+                  <div className="flex items-center justify-between pt-2 border-t">
+                    <div className="text-sm text-muted-foreground">
+                      Reset to default rate ({DEFAULT_USD_NPR_RATE} NPR)
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={async () => {
+                        setSettingDefault(true);
+                        setLocalRate(DEFAULT_USD_NPR_RATE.toString());
+                        await updateSettings({ fx_manual_rate_usd_npr: DEFAULT_USD_NPR_RATE });
+                        setSettingDefault(false);
+                      }}
+                      disabled={settingDefault}
+                    >
+                      {settingDefault ? "Setting..." : "Set as Default"}
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
