@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { fetchWithAuth } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
 
 declare global {
@@ -69,7 +70,7 @@ export function DrivePicker({ entryId, onAttached, onError }: DrivePickerProps) 
     try {
       await loadGapiScript();
 
-      const tokenResponse = await fetch("/api/drive/picker-token", { cache: "no-store" });
+      const tokenResponse = await fetchWithAuth("/api/drive/picker-token", { cache: "no-store" });
       if (!tokenResponse.ok) {
         const payload = await tokenResponse.json().catch(() => ({}));
         throw new Error(payload.error || "Drive not connected");
@@ -105,7 +106,7 @@ export function DrivePicker({ entryId, onAttached, onError }: DrivePickerProps) 
               const files = data.docs ?? [];
               if (files.length === 0) return;
 
-              const attachResponse = await fetch("/api/drive/attach", {
+              const attachResponse = await fetchWithAuth("/api/drive/attach", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ entry_id: entryId, files })

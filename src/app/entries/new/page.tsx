@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { fetchWithAuth } from "@/lib/supabase/browser";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { EntryForm, EntryFormData } from "@/components/entry-form";
@@ -15,7 +16,7 @@ export default function NewEntryPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/entries", {
+      const response = await fetchWithAuth("/api/entries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Loader2 } from "lucide-react";
 
+import { fetchWithAuth } from "@/lib/supabase/browser";
 import {
     Dialog,
     DialogContent,
@@ -51,7 +52,7 @@ export function YearAddDialog({
         setError(null);
 
         try {
-            const res = await fetch("/api/years", {
+            const res = await fetchWithAuth("/api/years", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ year: parsed })

@@ -19,6 +19,7 @@ import {
   Target
 } from "lucide-react";
 
+import { fetchWithAuth } from "@/lib/supabase/browser";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { usePrivateMode } from "@/components/private-mode-provider";
@@ -45,7 +46,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     let active = true;
-    fetch("/api/tax-fees/availability", { cache: "no-store" })
+    fetchWithAuth("/api/tax-fees/availability", { cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) return { available: false };
         return response.json();

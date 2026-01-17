@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Sparkles } from "lucide-react";
 
+import { fetchWithAuth } from "@/lib/supabase/browser";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -19,7 +20,7 @@ export default function InsightsPage() {
     setAnalysis(null);
 
     try {
-      const response = await fetch("/api/ai/insights", {
+      const response = await fetchWithAuth("/api/ai/insights", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ period }),

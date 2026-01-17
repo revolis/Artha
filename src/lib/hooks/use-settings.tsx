@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useContext, createContext } from "react";
+import { fetchWithAuth } from "@/lib/supabase/browser";
 
 type Settings = {
     display_currency_mode: "usd" | "npr" | "both";
@@ -29,13 +30,12 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 
     const fetchSettings = async () => {
         try {
-            const res = await fetch("/api/settings");
+            const res = await fetchWithAuth("/api/settings");
             if (res.ok) {
                 const data = await res.json();
                 setSettings(data.settings);
             }
-        } catch (err) {
-            console.error(err);
+        } catch {
         } finally {
             setLoading(false);
         }
@@ -46,21 +46,19 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     const updateSettings = async (updates: Partial<Settings>) => {
-        // Optimistic update
         setSettings(prev => prev ? { ...prev, ...updates } : null);
 
         try {
-            const res = await fetch("/api/settings", {
+            const res = await fetchWithAuth("/api/settings", {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(updates)
             });
             if (!res.ok) throw new Error("Failed to save");
             const data = await res.json();
-            setSettings(data.settings); // Confirm with server state
-        } catch (err) {
-            console.error(err);
-            fetchSettings(); // Revert on error
+            setSettings(data.settings);
+        } catch {
+            fetchSettings();
         }
     };
 

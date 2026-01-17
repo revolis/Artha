@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Plus } from "lucide-react";
 
+import { fetchWithAuth } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
 import { CreateReportDialog } from "@/components/reports/create-report-dialog";
 import { ReportList } from "@/components/reports/report-list";
@@ -20,13 +21,12 @@ export default function ReportsPage() {
   const fetchReports = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/reports");
+      const res = await fetchWithAuth("/api/reports");
       if (res.ok) {
         const data = await res.json();
         setReports(data.reports || []);
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
     } finally {
       setLoading(false);
     }

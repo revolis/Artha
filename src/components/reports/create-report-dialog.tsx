@@ -4,6 +4,7 @@ import * as React from "react";
 import { format } from "date-fns";
 import { CalendarIcon, Download } from "lucide-react";
 
+import { fetchWithAuth } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -54,7 +55,7 @@ export function CreateReportDialog({
         setError(null);
 
         try {
-            const res = await fetch("/api/reports", {
+            const res = await fetchWithAuth("/api/reports", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
