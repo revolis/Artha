@@ -6,8 +6,12 @@ import { SettingsProvider } from "@/lib/hooks/use-settings";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata: Metadata = {
-  title: "Rabin Finance OS",
-  description: "Personal finance command center"
+  title: "ARTHA MgMt",
+  description: "Personal finance management command center",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
