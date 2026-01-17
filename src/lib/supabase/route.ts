@@ -82,7 +82,23 @@ export function createSupabaseRouteClient() {
   return { client, serviceClient: null, token: null };
 }
 
+// Mock user for development when auth is disabled
+const MOCK_DEV_USER = {
+  id: "00000000-0000-0000-0000-000000000000",
+  email: "dev@local.test",
+  user_metadata: { name: "Dev User" },
+  app_metadata: { provider: "debug" },
+  aud: "authenticated",
+  role: "authenticated",
+  created_at: new Date().toISOString(),
+};
+
 export async function getAuthenticatedUser() {
+  // Development flag to disable authentication - DO NOT ENABLE IN PRODUCTION
+  if (process.env.DISABLE_AUTH === "true") {
+    return MOCK_DEV_USER;
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   

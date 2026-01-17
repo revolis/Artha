@@ -6,6 +6,11 @@ const PUBLIC_PATHS = new Set(["/login"]);
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Development flag to disable authentication - DO NOT ENABLE IN PRODUCTION
+  if (process.env.DISABLE_AUTH === "true") {
+    return NextResponse.next();
+  }
+
   if (
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||

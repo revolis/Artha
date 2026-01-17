@@ -48,3 +48,6 @@ GOOGLE_DRIVE_REDIRECT_URI = "https://artha1.vercel.app/api/auth/callback/google"
 NEXT_PUBLIC_GOOGLE_DRIVE_APP_ID = "721802200710"
 NEXT_PUBLIC_GOOGLE_DRIVE_API_KEY = "AIzaSyD2hI9HahlN0fk9ujd9UK_Ou34q1ZGWM9Q"
 GOOGLE_DRIVE_CLIENT_ID = "721802200710-6rcmjrd8caomeis6i3pq1dr6qk2f0m2o.apps.googleusercontent.com"
+
+[userenv.development]
+DISABLE_AUTH = "true"
