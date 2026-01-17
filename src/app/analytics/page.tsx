@@ -99,13 +99,14 @@ export default function AnalyticsPage() {
 
   const { totals, chartData, categoryBreakdown, topEntries } = data;
 
-  const getGrowth = (current: number, prev: number) => {
-    if (!prev) return 0;
-    return ((current - prev) / prev) * 100;
+  const getGrowth = (current: number, prev: number | null) => {
+    if (prev === null || prev === undefined || !Number.isFinite(prev) || prev === 0) return null;
+    const growth = ((current - prev) / prev) * 100;
+    return Number.isFinite(growth) ? growth : null;
   };
 
-  const incomeGrowth = getGrowth(totals.income, totals.prevIncome);
-  const expenseGrowth = getGrowth(totals.expenses, totals.prevExpenses);
+  const incomeGrowth = getGrowth(totals?.income ?? 0, totals?.prevIncome);
+  const expenseGrowth = getGrowth(totals?.expenses ?? 0, totals?.prevExpenses);
 
   return (
     <div className="container max-w-5xl py-8 space-y-8">
@@ -204,20 +205,22 @@ export default function AnalyticsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {categoryBreakdown.map((item: any, i: number) => {
-              const max = categoryBreakdown[0].value;
-              const percent = (item.value / totals.expenses) * 100;
+              const max = categoryBreakdown[0]?.value || 1;
+              const totalExpenses = totals?.expenses || 1;
+              const percent = totalExpenses > 0 ? (item.value / totalExpenses) * 100 : 0;
+              const barWidth = max > 0 ? (item.value / max) * 100 : 0;
               return (
                 <div key={item.name} className="space-y-1">
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-medium">{item.name}</span>
                     <span className="text-mutedForeground">
-                      {percent.toFixed(1)}% ({format(item.value)})
+                      {Number.isFinite(percent) ? percent.toFixed(1) : "0.0"}% ({format(item.value)})
                     </span>
                   </div>
                   <div className="h-2 rounded-full bg-muted overflow-hidden">
                     <div
                       className="h-full bg-primary"
-                      style={{ width: `${(item.value / max) * 100}%` }}
+                      style={{ width: `${Number.isFinite(barWidth) ? barWidth : 0}%` }}
                     />
                   </div>
                 </div>
@@ -263,6 +266,9 @@ export default function AnalyticsPage() {
 }
 
 function KpiCard({ title, value, growth, trend, icon: Icon }: any) {
+  const safeValue = Number.isFinite(value) ? value : 0;
+  const hasGrowth = growth !== null && Number.isFinite(growth) && growth !== 0;
+  const safeGrowth = hasGrowth ? growth : 0;
   return (
     <Card>
       <CardContent className="p-6">
@@ -271,16 +277,16 @@ function KpiCard({ title, value, growth, trend, icon: Icon }: any) {
           <Icon className="h-4 w-4 text-mutedForeground" />
         </div>
         <div className="flex items-baseline gap-2 mt-2">
-          <CurrencyDisplay value={value} className="text-2xl font-bold" />
-          {growth !== 0 && (
+          <CurrencyDisplay value={safeValue} className="text-2xl font-bold" />
+          {hasGrowth && (
             <div className={cn(
               "flex items-center text-xs font-medium",
-              growth > 0
+              safeGrowth > 0
                 ? (trend === 'up-good' ? 'text-emerald-500' : 'text-red-500')
                 : (trend === 'down-good' ? 'text-emerald-500' : 'text-red-500')
             )}>
-              {growth > 0 ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowDownRight className="h-3 w-3 mr-1" />}
-              {Math.abs(growth).toFixed(1)}%
+              {safeGrowth > 0 ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowDownRight className="h-3 w-3 mr-1" />}
+              {Math.abs(safeGrowth).toFixed(1)}%
             </div>
           )}
         </div>

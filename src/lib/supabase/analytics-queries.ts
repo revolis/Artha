@@ -14,7 +14,7 @@ export async function getAnalyticsData(
     // 1. Determine Date Range
     const now = new Date();
     let start = new Date();
-    let end = new Date();
+    let end = new Date(now.getTime()); // Default to current time
     let previousStart = new Date();
     let previousEnd = new Date(); // To calculate growth
 
@@ -42,13 +42,9 @@ export async function getAnalyticsData(
             break;
         case "ytd":
             start = startOfYear(now);
-            previousStart = startOfYear(subYears(now, 1)); // Compare to prev year same period? or just prev period?
-            // Usually YTD compares to Prev YTD
-            previousEnd = subYears(now, 1); // No wait, compare to prev year same date range
-            // Actually simpler: just compare to previous equivalent duration? 
-            // Let's stick to simple "previous period of same length" for now or Prev Year?
-            // Let's do previous period for simplicity unless YTD.
-            previousStart = subDays(start, 1); // rough fallback
+            // Compare to same period in previous year (e.g., Jan 1 - Jan 17 this year vs Jan 1 - Jan 17 last year)
+            previousStart = startOfYear(subYears(now, 1));
+            previousEnd = subYears(end, 1); // Use end (which is now) shifted back one year
             break;
         case "1y":
             start = subYears(now, 1);
@@ -57,6 +53,10 @@ export async function getAnalyticsData(
             break;
         case "all":
             start = new Date(0); // Beginning of time
+            // For "all" time, there's no meaningful previous period
+            // Set to same as start to indicate no comparison available
+            previousStart = new Date(0);
+            previousEnd = new Date(0);
             break;
     }
 
@@ -73,7 +73,7 @@ export async function getAnalyticsData(
     // We fetch ALL entries for the ranges. For larger apps, we'd aggregate in SQL.
     // For personal finance (thousands of rows), fetching 1-2k rows is fine.
 
-    const { data: currentEntries } = await supabase
+    const { data: currentEntriesRaw, error: currentError } = await supabase
         .from("entries")
         .select("*, categories(name, type), sources(platform)")
         .eq("user_id", userId)
@@ -81,22 +81,53 @@ export async function getAnalyticsData(
         .lte("entry_date", end.toISOString())
         .order("entry_date", { ascending: true });
 
-    const { data: prevEntries } = await supabase
-        .from("entries")
-        .select("amount_usd_base, entry_type")
-        .eq("user_id", userId)
-        .gte("entry_date", previousStart.toISOString())
-        .lt("entry_date", previousEnd.toISOString());
+    if (currentError) {
+        console.error("Analytics current entries error:", currentError);
+        throw new Error("Failed to fetch analytics data: " + currentError.message);
+    }
+
+    // For "all" period, skip previous period comparison
+    let prevEntriesRaw: any[] | null = null;
+    let prevError: any = null;
+    
+    const hasMeaningfulPrevPeriod = period !== "all" && previousStart.getTime() !== previousEnd.getTime();
+    
+    if (hasMeaningfulPrevPeriod) {
+        const result = await supabase
+            .from("entries")
+            .select("amount_usd_base, entry_type")
+            .eq("user_id", userId)
+            .gte("entry_date", previousStart.toISOString())
+            .lt("entry_date", previousEnd.toISOString());
+        prevEntriesRaw = result.data;
+        prevError = result.error;
+    }
+
+    if (prevError) {
+        console.error("Analytics prev entries error:", prevError);
+        throw new Error("Failed to fetch previous period data: " + prevError.message);
+    }
+
+    // Normalize entries - Supabase returns arrays for joined tables
+    const currentEntries = (currentEntriesRaw ?? []).map((e: any) => ({
+        ...e,
+        categories: Array.isArray(e.categories) ? e.categories[0] ?? null : e.categories,
+        sources: Array.isArray(e.sources) ? e.sources[0] ?? null : e.sources,
+    }));
+    const prevEntries = prevEntriesRaw ?? [];
 
     // 3. Process Totals
     const calculateTotals = (entries: any[]) => {
-        const income = entries?.filter(e => e.entry_type === 'profit').reduce((acc, e) => acc + Number(e.amount_usd_base), 0) || 0;
-        const expenses = entries?.filter(e => e.entry_type === 'loss' || e.entry_type === 'fee' || e.entry_type === 'tax').reduce((acc, e) => acc + Number(e.amount_usd_base), 0) || 0;
+        if (!entries || entries.length === 0) {
+            return { income: 0, expenses: 0, net: 0 };
+        }
+        const income = entries.filter(e => e.entry_type === 'profit').reduce((acc, e) => acc + (Number(e.amount_usd_base) || 0), 0);
+        const expenses = entries.filter(e => e.entry_type === 'loss' || e.entry_type === 'fee' || e.entry_type === 'tax').reduce((acc, e) => acc + (Number(e.amount_usd_base) || 0), 0);
         return { income, expenses, net: income - expenses };
     };
 
-    const currentTotals = calculateTotals(currentEntries || []);
-    const prevTotals = calculateTotals(prevEntries || []);
+    const currentTotals = calculateTotals(currentEntries);
+    const prevTotals = calculateTotals(prevEntries);
 
     // 4. Time Series Grouping
     // Determine intuitive grouping based on duration
@@ -133,8 +164,8 @@ export async function getAnalyticsData(
             filterFn = (d) => isSameMonth(d, date);
         }
 
-        const periodEntries = currentEntries?.filter(e => filterFn(new Date(e.entry_date)));
-        const stats = calculateTotals(periodEntries || []);
+        const periodEntries = currentEntries.filter(e => filterFn(new Date(e.entry_date)));
+        const stats = calculateTotals(periodEntries);
         return {
             date: date.toISOString(),
             label,
@@ -146,13 +177,10 @@ export async function getAnalyticsData(
 
     // By Category
     const categoryStats: Record<string, number> = {};
-    currentEntries?.forEach(e => {
-        if (e.entry_type !== 'loss') return; // Expense breakdown primarily? Or handle income separately?
-        // Usually breakdown is for Expenses OR Income. Let's do Expenses by default or separate.
-        // Let's do Net impact per category? Usually users want "Where did my money go?" (Expenses)
+    currentEntries.forEach(e => {
         if (['loss', 'fee', 'tax'].includes(e.entry_type)) {
             const catName = e.categories?.name || "Uncategorized";
-            categoryStats[catName] = (categoryStats[catName] || 0) + Number(e.amount_usd_base);
+            categoryStats[catName] = (categoryStats[catName] || 0) + (Number(e.amount_usd_base) || 0);
         }
     });
 
@@ -162,27 +190,33 @@ export async function getAnalyticsData(
         .slice(0, 10); // Top 10
 
     // 6. Best/Worst Days (Income/Expense)
-    // We can just sort the currentEntries
-    const topIncomeFn = (entries: any[]) => entries.filter(e => e.entry_type === 'profit').sort((a, b) => Number(b.amount_usd_base) - Number(a.amount_usd_base)).slice(0, 5);
-    const topExpenseFn = (entries: any[]) => entries.filter(e => ['loss', 'fee', 'tax'].includes(e.entry_type)).sort((a, b) => Number(b.amount_usd_base) - Number(a.amount_usd_base)).slice(0, 5);
+    const topIncomeFn = (entries: any[]) => entries
+        .filter(e => e.entry_type === 'profit')
+        .sort((a, b) => (Number(b.amount_usd_base) || 0) - (Number(a.amount_usd_base) || 0))
+        .slice(0, 5);
+    const topExpenseFn = (entries: any[]) => entries
+        .filter(e => ['loss', 'fee', 'tax'].includes(e.entry_type))
+        .sort((a, b) => (Number(b.amount_usd_base) || 0) - (Number(a.amount_usd_base) || 0))
+        .slice(0, 5);
 
     return {
         totals: {
             ...currentTotals,
-            prevIncome: prevTotals.income,
-            prevExpenses: prevTotals.expenses,
-            prevNet: prevTotals.net
+            prevIncome: hasMeaningfulPrevPeriod ? prevTotals.income : null,
+            prevExpenses: hasMeaningfulPrevPeriod ? prevTotals.expenses : null,
+            prevNet: hasMeaningfulPrevPeriod ? prevTotals.net : null
         },
         chartData: timeSeries,
         categoryBreakdown,
         topEntries: {
-            income: topIncomeFn(currentEntries || []),
-            expenses: topExpenseFn(currentEntries || [])
+            income: topIncomeFn(currentEntries),
+            expenses: topExpenseFn(currentEntries)
         },
         meta: {
             grouping,
             start,
-            end
+            end,
+            hasPrevPeriod: hasMeaningfulPrevPeriod
         }
     };
 }
