@@ -17,18 +17,18 @@ type HeatmapGridProps = {
 
 const positiveScale = [
   "bg-muted/40",
-  "bg-positive/10",
-  "bg-positive/20",
-  "bg-positive/35",
-  "bg-positive/55"
+  "bg-emerald-200",
+  "bg-emerald-300",
+  "bg-emerald-400",
+  "bg-emerald-500"
 ];
 
 const negativeScale = [
   "bg-muted/40",
-  "bg-negative/10",
-  "bg-negative/20",
-  "bg-negative/35",
-  "bg-negative/55"
+  "bg-red-200",
+  "bg-red-300",
+  "bg-red-400",
+  "bg-red-500"
 ];
 
 function getPercentile(values: number[], percentile: number) {

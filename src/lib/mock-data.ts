@@ -327,15 +327,19 @@ export const categorySeries = defaultYear.categoryContribution;
 export const portfolioSeries = defaultYear.portfolioSeries;
 export const entries = defaultYear.recentEntries;
 
-export const heatmapDays = Array.from({ length: 84 }).map((_, index) => {
-  const value = Math.round(Math.sin(index / 5) * 900 + 400);
+export const heatmapDays = Array.from({ length: 180 }).map((_, index) => {
+  const baseDate = new Date(Date.UTC(2026, 0, 1));
+  baseDate.setUTCDate(baseDate.getUTCDate() + index);
+  const dateStr = baseDate.toISOString().slice(0, 10);
+  
+  const value = Math.round(Math.sin(index / 7) * 800 + (Math.random() - 0.5) * 400);
   return {
-    date: `2026-0${Math.floor(index / 30) + 1}-${(index % 28) + 1}`,
+    date: dateStr,
     net: value,
     profit: value > 0 ? value : 0,
     loss: value < 0 ? Math.abs(value) : 0,
-    topCategory: "Consulting",
-    topSource: "Client Work"
+    topCategory: ["Consulting", "Affiliates", "Products"][index % 3],
+    topSource: ["Client Work", "Amazon", "Gumroad"][index % 3]
   };
 });
 
