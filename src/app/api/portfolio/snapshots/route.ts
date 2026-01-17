@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 import { getAvailableYears, getYearDateRange } from "@/lib/supabase/queries";
 
 type EntryRow = {
@@ -47,10 +47,10 @@ function buildSnapshotsFromEntries(entries: EntryRow[]) {
 }
 
 export async function GET(request: NextRequest) {
-  const supabase = createSupabaseRouteClient();
-  const { data, error } = await supabase.auth.getUser();
+  const { client: supabase } = createSupabaseRouteClient();
+  const user = await getAuthenticatedUser();
 
-  if (error || !data.user) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
   const { start, end } = getYearDateRange(year);
   const getYearsSafe = async () => {
     try {
-      return await getAvailableYears(supabase, data.user.id);
+      return await getAvailableYears(supabase, user.id);
     } catch (err) {
       return [year];
     }
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
   const { data: snapshots, error: snapshotError } = await supabase
     .from("portfolio_snapshots")
     .select("snapshot_date, total_value_usd")
-    .eq("user_id", data.user.id)
+    .eq("user_id", user.id)
     .gte("snapshot_date", start)
     .lt("snapshot_date", end)
     .order("snapshot_date", { ascending: true });
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
   const { data: entries, error: entriesError } = await supabase
     .from("entries")
     .select("entry_date, entry_type, amount_usd_base")
-    .eq("user_id", data.user.id)
+    .eq("user_id", user.id)
     .gte("entry_date", start)
     .lt("entry_date", end)
     .order("entry_date", { ascending: true });
@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
 
   const upsertPayload = derived.map((snapshot) => ({
     ...snapshot,
-    user_id: data.user.id
+    user_id: user.id
   }));
 
   const { data: upserted } = await supabase

@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 import { getDashboardYearData } from "@/lib/supabase/queries";
 
 export async function GET(request: NextRequest) {
-  const supabase = createSupabaseRouteClient();
-  const { data, error } = await supabase.auth.getUser();
+  const { client: supabase } = createSupabaseRouteClient();
+  const user = await getAuthenticatedUser();
 
-  if (error || !data.user) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
   const year = Number.isFinite(parsedYear) ? parsedYear : new Date().getUTCFullYear();
 
   try {
-    const dashboard = await getDashboardYearData(supabase, data.user.id, year);
+    const dashboard = await getDashboardYearData(supabase, user.id, year);
     return NextResponse.json({ goals: dashboard.targets });
   } catch (err) {
     return NextResponse.json({ error: "Failed to load goals" }, { status: 500 });
@@ -26,10 +26,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const supabase = createSupabaseRouteClient();
-  const { data, error } = await supabase.auth.getUser();
+  const { client: supabase } = createSupabaseRouteClient();
+  const user = await getAuthenticatedUser();
 
-  if (error || !data.user) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
   }
 
   const payload = {
-    user_id: data.user.id,
+    user_id: user.id,
     timeframe: body.timeframe,
     target_type: body.target_type,
     target_value_usd: targetValue,
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
   if (Number.isFinite(goalYear)) {
     await supabase
       .from("financial_years")
-      .upsert({ user_id: data.user.id, year: goalYear }, { onConflict: "user_id,year" });
+      .upsert({ user_id: user.id, year: goalYear }, { onConflict: "user_id,year" });
   }
 
   return NextResponse.json({ goal: created });

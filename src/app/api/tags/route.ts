@@ -1,20 +1,20 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 
 export async function GET() {
-  const supabase = createSupabaseRouteClient();
-  const { data, error } = await supabase.auth.getUser();
+  const { client: supabase } = createSupabaseRouteClient();
+  const user = await getAuthenticatedUser();
 
-  if (error || !data.user) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { data: tags, error: tagsError } = await supabase
     .from("tags")
     .select("id, name")
-    .eq("user_id", data.user.id)
+    .eq("user_id", user.id)
     .order("name", { ascending: true });
 
   if (tagsError) {
@@ -25,10 +25,10 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const supabase = createSupabaseRouteClient();
-  const { data, error } = await supabase.auth.getUser();
+  const { client: supabase } = createSupabaseRouteClient();
+  const user = await getAuthenticatedUser();
 
-  if (error || !data.user) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
   const { data: created, error: insertError } = await supabase
     .from("tags")
     .insert({
-      user_id: data.user.id,
+      user_id: user.id,
       name: body.name
     })
     .select()

@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
-import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 import { startOfYear, endOfYear } from "date-fns";
 
 export async function GET(request: NextRequest) {
-    const supabase = createSupabaseRouteClient();
-    const { data: user, error: authError } = await supabase.auth.getUser();
+    const { client: supabase } = createSupabaseRouteClient();
+    const user = await getAuthenticatedUser();
 
-    if (authError || !user?.user) {
+    if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
         categories(name),
         trade_details(exchange, fee_amount, fee_currency)
     `)
-        .eq("user_id", user.user.id)
+        .eq("user_id", user.id)
         .in("entry_type", ["tax", "fee"])
         .gte("entry_date", startDate.toISOString())
         .lte("entry_date", endDate.toISOString())

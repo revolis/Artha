@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 import { getAnalyticsData, Period } from "@/lib/supabase/analytics-queries";
 
 export const maxDuration = 30; // Allow longer timeout for AI generation
 
 export async function POST(request: Request) {
-  const supabase = createSupabaseRouteClient();
-  const { data: userData, error: userError } = await supabase.auth.getUser();
+  const { client: supabase } = createSupabaseRouteClient();
+  const user = await getAuthenticatedUser();
 
-  if (userError || !userData.user) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     const period: Period = body.period || "30d";
 
     // 1. Fetch Financial Context
-    const analyticsRequest = await getAnalyticsData(supabase, userData.user.id, period);
+    const analyticsRequest = await getAnalyticsData(supabase, user.id, period);
 
     // Simplify context to reduce token usage and noise
     const context = {

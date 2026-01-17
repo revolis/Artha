@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 import { supabaseServer } from "@/lib/supabase/server";
 import { getDriveAccessToken } from "@/lib/drive/oauth";
 
@@ -9,10 +9,10 @@ export async function GET(
     { params }: { params: { fileId: string } }
 ) {
     const fileId = params.fileId;
-    const supabase = createSupabaseRouteClient();
-    const { data: userData, error: userError } = await supabase.auth.getUser();
+    const { client: supabase } = createSupabaseRouteClient();
+    const user = await getAuthenticatedUser();
 
-    if (userError || !userData.user) {
+    if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -20,7 +20,7 @@ export async function GET(
     const { data: tokenRow } = await supabaseServer
         .from("drive_tokens")
         .select("refresh_token")
-        .eq("user_id", userData.user.id)
+        .eq("user_id", user.id)
         .single();
 
     if (!tokenRow?.refresh_token) {
@@ -57,10 +57,10 @@ export async function DELETE(
     { params }: { params: { fileId: string } }
 ) {
     const fileId = params.fileId;
-    const supabase = createSupabaseRouteClient();
-    const { data: userData, error: userError } = await supabase.auth.getUser();
+    const { client: supabase } = createSupabaseRouteClient();
+    const user = await getAuthenticatedUser();
 
-    if (userError || !userData.user) {
+    if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -68,7 +68,7 @@ export async function DELETE(
     const { data: tokenRow } = await supabaseServer
         .from("drive_tokens")
         .select("refresh_token")
-        .eq("user_id", userData.user.id)
+        .eq("user_id", user.id)
         .single();
 
     if (!tokenRow?.refresh_token) {

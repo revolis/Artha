@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 import { getYearDateRange, getAvailableYears } from "@/lib/supabase/queries";
 
 export async function GET(request: NextRequest) {
-  const supabase = createSupabaseRouteClient();
-  const { data, error } = await supabase.auth.getUser();
+  const { client: supabase } = createSupabaseRouteClient();
+  const user = await getAuthenticatedUser();
 
-  if (error || !data.user) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     .select(
       "id, entry_date, entry_type, amount_usd_base, notes, category:categories(id, name), source:sources(id, platform)"
     )
-    .eq("user_id", data.user.id)
+    .eq("user_id", user.id)
     .gte("entry_date", start)
     .lt("entry_date", end)
     .order("entry_date", { ascending: false });
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
   }));
 
   try {
-    const years = await getAvailableYears(supabase, data.user.id);
+    const years = await getAvailableYears(supabase, user.id);
     return NextResponse.json({ entries: normalizedEntries, years });
   } catch (err) {
     return NextResponse.json({ entries: normalizedEntries, years: [] });
@@ -46,10 +46,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const supabase = createSupabaseRouteClient();
-  const { data, error } = await supabase.auth.getUser();
+  const { client: supabase } = createSupabaseRouteClient();
+  const user = await getAuthenticatedUser();
 
-  if (error || !data.user) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
   }
 
   const payload = {
-    user_id: data.user.id,
+    user_id: user.id,
     entry_date: body.entry_date,
     entry_type: body.entry_type,
     category_id: body.category_id,
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
   if (Number.isFinite(entryYear)) {
     await supabase
       .from("financial_years")
-      .upsert({ user_id: data.user.id, year: entryYear }, { onConflict: "user_id,year" });
+      .upsert({ user_id: user.id, year: entryYear }, { onConflict: "user_id,year" });
   }
 
   const tagIds = Array.isArray(body.tag_ids)
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
     const { data: tags } = await supabase
       .from("tags")
       .select("id")
-      .eq("user_id", data.user.id)
+      .eq("user_id", user.id)
       .in("id", tagIds);
 
     const validTagIds = (tags ?? []).map((tag) => tag.id);

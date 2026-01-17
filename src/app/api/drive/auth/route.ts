@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 
-import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 
 export async function GET() {
-  const supabase = createSupabaseRouteClient();
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) {
+  const { client: supabase } = createSupabaseRouteClient();
+  const user = await getAuthenticatedUser();
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

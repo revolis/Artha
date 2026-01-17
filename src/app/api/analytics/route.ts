@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
-import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 import { getAnalyticsData, Period } from "@/lib/supabase/analytics-queries";
 
 export async function GET(request: NextRequest) {
-    const supabase = createSupabaseRouteClient();
-    const { data: user, error: authError } = await supabase.auth.getUser();
+    const { client: supabase } = createSupabaseRouteClient();
+    const user = await getAuthenticatedUser();
 
-    if (authError || !user?.user) {
+    if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     try {
         const data = await getAnalyticsData(
             supabase,
-            user.user.id,
+            user.id,
             period,
             customStart,
             customEnd

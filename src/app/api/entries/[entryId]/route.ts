@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 import { supabaseServer } from "@/lib/supabase/server";
 import { getDriveAccessToken } from "@/lib/drive/oauth";
 
@@ -9,10 +9,10 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: { entryId: string } }
 ) {
-  const supabase = createSupabaseRouteClient();
-  const { data, error } = await supabase.auth.getUser();
+  const { client: supabase } = createSupabaseRouteClient();
+  const user = await getAuthenticatedUser();
 
-  if (error || !data.user) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -22,7 +22,7 @@ export async function GET(
       "id, entry_date, entry_type, amount_usd_base, currency_original, amount_original, fx_rate_used, notes, category_id, source_id, entry_tags(tag_id)"
     )
     .eq("id", params.entryId)
-    .eq("user_id", data.user.id)
+    .eq("user_id", user.id)
     .single();
 
   if (entryError) {
@@ -36,10 +36,10 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { entryId: string } }
 ) {
-  const supabase = createSupabaseRouteClient();
-  const { data, error } = await supabase.auth.getUser();
+  const { client: supabase } = createSupabaseRouteClient();
+  const user = await getAuthenticatedUser();
 
-  if (error || !data.user) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -69,7 +69,7 @@ export async function PUT(
     .from("entries")
     .update(payload)
     .eq("id", params.entryId)
-    .eq("user_id", data.user.id)
+    .eq("user_id", user.id)
     .select()
     .single();
 
@@ -83,7 +83,7 @@ export async function PUT(
     const { data: tags } = await supabase
       .from("tags")
       .select("id")
-      .eq("user_id", data.user.id)
+      .eq("user_id", user.id)
       .in("id", tagIds);
 
     const validTagIds = (tags ?? []).map((tag) => tag.id);
@@ -105,10 +105,10 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: { entryId: string } }
 ) {
-  const supabase = createSupabaseRouteClient();
-  const { data, error } = await supabase.auth.getUser();
+  const { client: supabase } = createSupabaseRouteClient();
+  const user = await getAuthenticatedUser();
 
-  if (error || !data.user) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -121,7 +121,7 @@ export async function DELETE(
     .from("entries")
     .delete()
     .eq("id", params.entryId)
-    .eq("user_id", data.user.id);
+    .eq("user_id", user.id);
 
   if (deleteError) {
     return NextResponse.json({ error: "Failed to delete entry" }, { status: 500 });
@@ -136,7 +136,7 @@ export async function DELETE(
     const { data: tokenRow } = await supabaseServer
       .from("drive_tokens")
       .select("refresh_token")
-      .eq("user_id", data.user.id)
+      .eq("user_id", user.id)
       .single();
 
     if (!tokenRow?.refresh_token) {

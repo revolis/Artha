@@ -1,4 +1,4 @@
-import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -8,35 +8,26 @@ export async function GET() {
         console.log("NEXT_PUBLIC_SUPABASE_URL:", process.env.NEXT_PUBLIC_SUPABASE_URL ? "SET" : "MISSING");
         console.log("NEXT_PUBLIC_SUPABASE_ANON_KEY:", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? "SET" : "MISSING");
 
-        const supabase = createSupabaseRouteClient();
+        const { client: supabase } = createSupabaseRouteClient();
         console.log("Supabase client created");
 
-        const { data, error } = await supabase.auth.getUser();
-        console.log("getUser() result:", { hasData: !!data, hasUser: !!data?.user, error: error?.message });
+        const user = await getAuthenticatedUser();
+        console.log("getAuthenticatedUser() result:", { hasUser: !!user });
 
-        if (error) {
-            console.error("Auth error:", error);
-            return NextResponse.json({
-                success: false,
-                error: error.message,
-                details: "getUser() failed"
-            }, { status: 401 });
-        }
-
-        if (!data.user) {
+        if (!user) {
             console.log("No user found in session");
             return NextResponse.json({
                 success: false,
                 error: "No user",
-                details: "data.user is null"
+                details: "user is null"
             }, { status: 401 });
         }
 
-        console.log("User authenticated:", data.user.id);
+        console.log("User authenticated:", user.id);
         return NextResponse.json({
             success: true,
-            userId: data.user.id,
-            email: data.user.email
+            userId: user.id,
+            email: user.email
         });
 
     } catch (err) {

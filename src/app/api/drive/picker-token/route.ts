@@ -1,21 +1,21 @@
 import { NextResponse } from "next/server";
 
-import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 import { supabaseServer } from "@/lib/supabase/server";
 import { getDriveAccessToken } from "@/lib/drive/oauth";
 
 export async function GET() {
-  const supabase = createSupabaseRouteClient();
-  const { data, error } = await supabase.auth.getUser();
+  const { client: supabase } = createSupabaseRouteClient();
+  const user = await getAuthenticatedUser();
 
-  if (error || !data.user) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { data: tokenRow } = await supabaseServer
     .from("drive_tokens")
     .select("refresh_token")
-    .eq("user_id", data.user.id)
+    .eq("user_id", user.id)
     .single();
 
   if (!tokenRow?.refresh_token) {

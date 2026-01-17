@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
-import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 
 export async function GET(request: NextRequest) {
-    const supabase = createSupabaseRouteClient();
-    const { data: user, error: authError } = await supabase.auth.getUser();
+    const { client: supabase } = createSupabaseRouteClient();
+    const user = await getAuthenticatedUser();
 
-    if (authError || !user?.user) {
+    if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase
         .from("user_settings")
         .select("*")
-        .eq("user_id", user.user.id)
+        .eq("user_id", user.id)
         .single();
 
     if (error && error.code !== "PGRST116") { // PGRST116 is "no rows returned"
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
         const { data: newData, error: createError } = await supabase
             .from("user_settings")
             .insert({
-                user_id: user.user.id,
+                user_id: user.id,
                 display_currency_mode: "usd",
                 fx_mode: "stored_only",
                 private_mode_default: false
@@ -44,10 +44,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-    const supabase = createSupabaseRouteClient();
-    const { data: user, error: authError } = await supabase.auth.getUser();
+    const { client: supabase } = createSupabaseRouteClient();
+    const user = await getAuthenticatedUser();
 
-    if (authError || !user?.user) {
+    if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -65,7 +65,7 @@ export async function PATCH(request: NextRequest) {
     const { data, error } = await supabase
         .from("user_settings")
         .update(upgrades)
-        .eq("user_id", user.user.id)
+        .eq("user_id", user.id)
         .select()
         .single();
 

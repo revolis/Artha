@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
-import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 
 export async function GET(
     request: NextRequest,
     { params }: { params: { reportId: string } }
 ) {
-    const supabase = createSupabaseRouteClient();
-    const { data: user, error: authError } = await supabase.auth.getUser();
+    const { client: supabase } = createSupabaseRouteClient();
+    const user = await getAuthenticatedUser();
 
-    if (authError || !user?.user) {
+    if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -18,7 +18,7 @@ export async function GET(
         .from("reports")
         .select("*")
         .eq("id", params.reportId)
-        .eq("user_id", user.user.id)
+        .eq("user_id", user.id)
         .single();
 
     if (error || !report) {
@@ -30,7 +30,7 @@ export async function GET(
     const { data: entries } = await supabase
         .from("entries")
         .select("*, categories(name)")
-        .eq("user_id", user.user.id)
+        .eq("user_id", user.id)
         .gte("entry_date", report.range_start)
         .lte("entry_date", report.range_end);
 

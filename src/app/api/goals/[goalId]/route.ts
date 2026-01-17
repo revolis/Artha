@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 
 export async function PUT(
   request: NextRequest,
   { params }: { params: { goalId: string } }
 ) {
-  const supabase = createSupabaseRouteClient();
-  const { data, error } = await supabase.auth.getUser();
+  const { client: supabase } = createSupabaseRouteClient();
+  const user = await getAuthenticatedUser();
 
-  if (error || !data.user) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -37,7 +37,7 @@ export async function PUT(
     .from("goals")
     .update(payload)
     .eq("id", params.goalId)
-    .eq("user_id", data.user.id)
+    .eq("user_id", user.id)
     .select()
     .single();
 
@@ -52,10 +52,10 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: { goalId: string } }
 ) {
-  const supabase = createSupabaseRouteClient();
-  const { data, error } = await supabase.auth.getUser();
+  const { client: supabase } = createSupabaseRouteClient();
+  const user = await getAuthenticatedUser();
 
-  if (error || !data.user) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -63,7 +63,7 @@ export async function DELETE(
     .from("goals")
     .delete()
     .eq("id", params.goalId)
-    .eq("user_id", data.user.id);
+    .eq("user_id", user.id);
 
   if (deleteError) {
     return NextResponse.json({ error: "Failed to delete goal" }, { status: 500 });

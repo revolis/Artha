@@ -1,20 +1,20 @@
 import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
-import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 import { nanoid } from "nanoid";
 
 export async function GET(request: NextRequest) {
-    const supabase = createSupabaseRouteClient();
-    const { data: user, error: authError } = await supabase.auth.getUser();
+    const { client: supabase } = createSupabaseRouteClient();
+    const user = await getAuthenticatedUser();
 
-    if (authError || !user?.user) {
+    if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { data, error } = await supabase
         .from("reports")
         .select("*")
-        .eq("user_id", user.user.id)
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
     if (error) {
@@ -25,10 +25,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-    const supabase = createSupabaseRouteClient();
-    const { data: user, error: authError } = await supabase.auth.getUser();
+    const { client: supabase } = createSupabaseRouteClient();
+    const user = await getAuthenticatedUser();
 
-    if (authError || !user?.user) {
+    if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     try {
         // 1. Generate Report Data (Logic will reside here or in a separate lib function)
-        const reportData = await generateReportData(supabase, user.user.id, range_start, range_end, report_type);
+        const reportData = await generateReportData(supabase, user.id, range_start, range_end, report_type);
 
         // 2. Generate Content based on format
         let content = "";
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
         const { data: report, error: dbError } = await supabase
             .from("reports")
             .insert({
-                user_id: user.user.id,
+                user_id: user.id,
                 range_start,
                 range_end,
                 report_type,

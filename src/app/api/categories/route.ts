@@ -1,20 +1,20 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 
 export async function GET() {
-  const supabase = createSupabaseRouteClient();
-  const { data, error } = await supabase.auth.getUser();
+  const { client: supabase } = createSupabaseRouteClient();
+  const user = await getAuthenticatedUser();
 
-  if (error || !data.user) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { data: categories, error: categoriesError } = await supabase
     .from("categories")
     .select("id, name, type")
-    .or(`user_id.eq.${data.user.id},user_id.is.null`)
+    .or(`user_id.eq.${user.id},user_id.is.null`)
     .order("name", { ascending: true });
 
   if (categoriesError) {
@@ -25,10 +25,10 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const supabase = createSupabaseRouteClient();
-  const { data, error } = await supabase.auth.getUser();
+  const { client: supabase } = createSupabaseRouteClient();
+  const user = await getAuthenticatedUser();
 
-  if (error || !data.user) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
   const { data: created, error: insertError } = await supabase
     .from("categories")
     .insert({
-      user_id: data.user.id,
+      user_id: user.id,
       name: body.name,
       type: "custom"
     })

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 
-import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 import { supabaseServer } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
@@ -20,9 +20,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Invalid OAuth state" }, { status: 400 });
   }
 
-  const supabase = createSupabaseRouteClient();
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) {
+  const { client: supabase } = createSupabaseRouteClient();
+  const user = await getAuthenticatedUser();
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
     const { data: existingToken } = await supabaseServer
       .from("drive_tokens")
       .select("refresh_token")
-      .eq("user_id", data.user.id)
+      .eq("user_id", user.id)
       .single();
 
     if (!existingToken?.refresh_token) {
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
 
   await supabaseServer
     .from("drive_tokens")
-    .upsert({ user_id: data.user.id, refresh_token: refreshToken });
+    .upsert({ user_id: user.id, refresh_token: refreshToken });
 
   cookieStore.set("drive_oauth_state", "", { maxAge: 0, path: "/" });
 

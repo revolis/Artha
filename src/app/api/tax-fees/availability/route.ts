@@ -1,19 +1,19 @@
 import { NextResponse } from "next/server";
 
-import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 
 export async function GET() {
-  const supabase = createSupabaseRouteClient();
-  const { data, error } = await supabase.auth.getUser();
+  const { client: supabase } = createSupabaseRouteClient();
+  const user = await getAuthenticatedUser();
 
-  if (error || !data.user) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { data: entries, error: entriesError } = await supabase
     .from("entries")
     .select("id")
-    .eq("user_id", data.user.id)
+    .eq("user_id", user.id)
     .in("entry_type", ["tax", "fee"])
     .limit(1);
 
