@@ -173,7 +173,13 @@ export default function DashboardPage() {
           onAddYear={handleAddYearRequest}
           onDeleteYear={handleDeleteYearRequest}
         />
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-xs uppercase tracking-[0.15em] text-mutedForeground">Avg Monthly Income</span>
+            <span className="text-sm font-semibold text-positive">
+              <CurrencyDisplay value={dashboard.averageMonthlyNet} />
+            </span>
+          </div>
           <DateRangePicker
             date={dateRange}
             onSelect={(range, preset) => {
