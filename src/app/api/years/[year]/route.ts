@@ -72,12 +72,13 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: { year: string } }
 ) {
-  const { client: supabase } = createSupabaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const supabase = supabaseServer;
 
   const year = Number(params.year);
   if (!Number.isFinite(year)) {
@@ -121,7 +122,7 @@ export async function DELETE(
 
     const entriesCount = entryIds?.length || 0;
     
-    await Promise.all([
+    const [entriesResult, goalsResult, snapshotsResult] = await Promise.all([
       supabase
         .from("entries")
         .delete()
@@ -140,6 +141,17 @@ export async function DELETE(
         .gte("snapshot_date", startDate)
         .lte("snapshot_date", endDate)
     ]);
+
+    if (entriesResult.error) {
+      console.error("Failed to delete entries:", entriesResult.error);
+      return NextResponse.json({ error: "Failed to delete entries: " + entriesResult.error.message }, { status: 500 });
+    }
+    if (goalsResult.error) {
+      console.error("Failed to delete goals:", goalsResult.error);
+    }
+    if (snapshotsResult.error) {
+      console.error("Failed to delete snapshots:", snapshotsResult.error);
+    }
 
     const storageErrors: string[] = [];
 
