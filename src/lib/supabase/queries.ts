@@ -402,7 +402,7 @@ function computeGoalProgress(goal: GoalRow, totals: ReturnType<typeof computePnl
 
   const ratio = achieved / targetValue;
   return {
-    progress: Math.min(1, Math.max(0, ratio)),
+    progress: Math.max(0, ratio),
     achieved
   };
 }
