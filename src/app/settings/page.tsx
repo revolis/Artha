@@ -23,13 +23,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
-const DEFAULT_USD_NPR_RATE = 147;
+const SYSTEM_DEFAULT_RATE = 147;
 
 export default function SettingsPage() {
   const { settings, updateSettings, loading } = useSettings();
-  const [localRate, setLocalRate] = React.useState(DEFAULT_USD_NPR_RATE.toString());
+  const [localRate, setLocalRate] = React.useState(SYSTEM_DEFAULT_RATE.toString());
   const [saving, setSaving] = React.useState(false);
   const [settingDefault, setSettingDefault] = React.useState(false);
+
+  // Get the user's default rate (saved rate or system default)
+  const userDefaultRate = settings?.fx_manual_rate_usd_npr || SYSTEM_DEFAULT_RATE;
 
   React.useEffect(() => {
     if (settings?.fx_manual_rate_usd_npr) {
@@ -112,7 +115,7 @@ export default function SettingsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="stored_only">Auto (1 USD = {DEFAULT_USD_NPR_RATE} NPR)</SelectItem>
+                    <SelectItem value="stored_only">Auto (1 USD = {userDefaultRate} NPR)</SelectItem>
                     <SelectItem value="manual">Manual Rate</SelectItem>
                   </SelectContent>
                 </Select>
