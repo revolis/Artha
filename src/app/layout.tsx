@@ -8,10 +8,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 export const metadata: Metadata = {
   title: "ARTHA MgMt",
   description: "Personal finance management command center",
-  icons: {
-    icon: "/favicon.png",
-    apple: "/favicon.png",
-  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
