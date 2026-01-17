@@ -83,6 +83,12 @@ The application uses Supabase's hosted PostgreSQL database. Database schema migr
 
 ## Recent Changes
 
+- 2026-01-17: Production readiness - removed all mock data
+  - Removed DISABLE_AUTH environment variable and mock data file
+  - All API routes now require real Supabase authentication
+  - Added custom name and purpose fields to goals
+  - Application now works exclusively with real data from Supabase
+
 - 2026-01-17: Authentication system overhaul and code polish
   - Implemented fetchWithAuth helper that combines Bearer token + cookie-based auth
   - Updated all 40+ fetch calls across the app to use authenticated requests
