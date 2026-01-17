@@ -114,9 +114,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <h2 className="text-lg font-semibold">Financial Overview</h2>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="secondary" className="hidden sm:inline-flex">
-              Quick Add
-            </Button>
             <Button variant="outline" onClick={toggle} className="gap-2">
               {enabled ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               Private
