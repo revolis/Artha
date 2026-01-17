@@ -40,7 +40,8 @@ export async function middleware(request: NextRequest) {
             name,
             value,
             ...options,
-            sameSite: 'lax',
+            sameSite: 'none',
+            secure: true,
             path: '/',
           });
         },
@@ -55,7 +56,8 @@ export async function middleware(request: NextRequest) {
             name,
             value: '',
             ...options,
-            sameSite: 'lax',
+            sameSite: 'none',
+            secure: true,
             path: '/',
             maxAge: 0,
           });

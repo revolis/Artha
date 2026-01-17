@@ -28,7 +28,8 @@ export function createSupabaseRouteClient() {
               name,
               value,
               ...options,
-              sameSite: 'lax',
+              sameSite: 'none',
+              secure: true,
               path: '/',
             });
           } catch (error) {
@@ -41,7 +42,8 @@ export function createSupabaseRouteClient() {
               name,
               value: '',
               ...options,
-              sameSite: 'lax',
+              sameSite: 'none',
+              secure: true,
               path: '/',
               maxAge: 0,
             });
