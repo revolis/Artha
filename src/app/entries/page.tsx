@@ -223,7 +223,7 @@ function EntriesContent() {
   const [deleteYearOpen, setDeleteYearOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [filterType, setFilterType] = React.useState<string>("all");
-  const [timeframe, setTimeframe] = React.useState<TimeframeOption>("this_year");
+  const [timeframe, setTimeframe] = React.useState<TimeframeOption>("all");
   const [customStart, setCustomStart] = React.useState<Date | undefined>();
   const [customEnd, setCustomEnd] = React.useState<Date | undefined>();
   const [expandedId, setExpandedId] = React.useState<string | null>(null);
