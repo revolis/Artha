@@ -42,6 +42,8 @@ type GoalItem = {
   endDate: string;
   categoryId?: string | null;
   categoryName?: string | null;
+  name?: string | null;
+  purpose?: string | null;
 };
 
 type CategoryOption = { id: string; name: string; type: string };
@@ -55,6 +57,8 @@ export default function GoalsPage() {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
+  const [goalName, setGoalName] = React.useState("");
+  const [purpose, setPurpose] = React.useState("");
   const [timeframe, setTimeframe] = React.useState("year");
   const [targetType, setTargetType] = React.useState("income");
   const [targetValue, setTargetValue] = React.useState("");
@@ -127,6 +131,8 @@ export default function GoalsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          name: goalName.trim() || null,
+          purpose: purpose.trim() || null,
           timeframe,
           target_type: targetType,
           target_value_usd: Number(targetValue),
@@ -141,6 +147,8 @@ export default function GoalsPage() {
         throw new Error(payload.error || "Failed to create goal");
       }
 
+      setGoalName("");
+      setPurpose("");
       setTargetValue("");
       setCategoryId(null);
       loadGoals();
@@ -248,6 +256,28 @@ export default function GoalsPage() {
             <CardTitle>Create goal</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="goal-name">Goal name (optional)</Label>
+              <Input
+                id="goal-name"
+                type="text"
+                placeholder="e.g., Emergency Fund, Q1 Revenue Target"
+                value={goalName}
+                onChange={(event) => setGoalName(event.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="purpose">Purpose (optional)</Label>
+              <Input
+                id="purpose"
+                type="text"
+                placeholder="e.g., Build 6-month safety net"
+                value={purpose}
+                onChange={(event) => setPurpose(event.target.value)}
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="timeframe">Timeframe</Label>
               <Select value={timeframe} onValueChange={setTimeframe}>

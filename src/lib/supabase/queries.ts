@@ -70,6 +70,8 @@ type EntryRow = {
 
 type GoalRow = {
   id: string;
+  name: string | null;
+  purpose: string | null;
   timeframe: "year" | "quarter" | "month" | "week" | "day";
   target_type: "income" | "net" | "portfolio_growth";
   target_value_usd: number | string;
@@ -463,7 +465,7 @@ export async function getDashboardYearData(
   const { data: goals, error: goalsError } = await supabase
     .from("goals")
     .select(
-      "id, timeframe, target_type, target_value_usd, start_date, end_date, category_id, category:categories(name)"
+      "id, name, purpose, timeframe, target_type, target_value_usd, start_date, end_date, category_id, category:categories(name)"
     )
     .eq("user_id", userId)
     .lte("start_date", end)
@@ -487,11 +489,16 @@ export async function getDashboardYearData(
       goal.end_date
     );
     const endLabel = format(new Date(goal.end_date), "MMM d");
-    const title =
-      goal.timeframe === "year"
+    const title = goal.name
+      ? goal.name
+      : goal.timeframe === "year"
         ? `Target for ${year}`
         : `Target until ${endLabel}`;
-    const subtitle = goal.category?.name ? `${goal.category.name} focus` : goal.timeframe;
+    const subtitle = goal.purpose
+      ? goal.purpose
+      : goal.category?.name
+        ? `${goal.category.name} focus`
+        : goal.timeframe;
 
     const { progress, achieved } = computeGoalProgress(goal, scopedTotals, scopedPortfolioValue);
 

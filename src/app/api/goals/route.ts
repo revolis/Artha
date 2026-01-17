@@ -45,6 +45,8 @@ export async function POST(request: NextRequest) {
 
   const payload = {
     user_id: user.id,
+    name: body.name || null,
+    purpose: body.purpose || null,
     timeframe: body.timeframe,
     target_type: body.target_type,
     target_value_usd: targetValue,
