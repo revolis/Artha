@@ -83,6 +83,13 @@ The application uses Supabase's hosted PostgreSQL database. Database schema migr
 
 ## Recent Changes
 
+- 2026-01-17: Authentication system overhaul and code polish
+  - Implemented fetchWithAuth helper that combines Bearer token + cookie-based auth
+  - Updated all 40+ fetch calls across the app to use authenticated requests
+  - Removed redundant token shadow copies, relying on Supabase's session management
+  - Fixed heatmap with bidirectional legend (profit/loss scales)
+  - Cleaned up unused imports and debug routes
+
 - 2026-01-17: Initial import and Replit environment setup
   - Configured Next.js to run on port 5000
   - Set up workflow for development server
