@@ -134,13 +134,17 @@ export async function getAnalyticsData(
     }));
     const prevEntries = prevEntriesRaw ?? [];
 
-    // 3. Process Totals
+    // 3. Process Totals - use Math.abs to normalize amounts (matching dashboard logic)
     const calculateTotals = (entries: any[]) => {
         if (!entries || entries.length === 0) {
             return { income: 0, expenses: 0, net: 0 };
         }
-        const income = entries.filter(e => e.entry_type === 'profit').reduce((acc, e) => acc + (Number(e.amount_usd_base) || 0), 0);
-        const expenses = entries.filter(e => e.entry_type === 'loss' || e.entry_type === 'fee' || e.entry_type === 'tax').reduce((acc, e) => acc + (Number(e.amount_usd_base) || 0), 0);
+        const income = entries
+            .filter(e => e.entry_type === 'profit')
+            .reduce((acc, e) => acc + Math.abs(Number(e.amount_usd_base) || 0), 0);
+        const expenses = entries
+            .filter(e => e.entry_type === 'loss' || e.entry_type === 'fee' || e.entry_type === 'tax')
+            .reduce((acc, e) => acc + Math.abs(Number(e.amount_usd_base) || 0), 0);
         return { income, expenses, net: income - expenses };
     };
 
@@ -193,12 +197,12 @@ export async function getAnalyticsData(
 
     // 5. Breakdowns
 
-    // By Category
+    // By Category - use Math.abs to normalize amounts
     const categoryStats: Record<string, number> = {};
     currentEntries.forEach(e => {
         if (['loss', 'fee', 'tax'].includes(e.entry_type)) {
             const catName = e.categories?.name || "Uncategorized";
-            categoryStats[catName] = (categoryStats[catName] || 0) + (Number(e.amount_usd_base) || 0);
+            categoryStats[catName] = (categoryStats[catName] || 0) + Math.abs(Number(e.amount_usd_base) || 0);
         }
     });
 
@@ -207,14 +211,14 @@ export async function getAnalyticsData(
         .sort((a, b) => b.value - a.value)
         .slice(0, 10); // Top 10
 
-    // 6. Best/Worst Days (Income/Expense)
+    // 6. Best/Worst Days (Income/Expense) - sort by absolute values
     const topIncomeFn = (entries: any[]) => entries
         .filter(e => e.entry_type === 'profit')
-        .sort((a, b) => (Number(b.amount_usd_base) || 0) - (Number(a.amount_usd_base) || 0))
+        .sort((a, b) => Math.abs(Number(b.amount_usd_base) || 0) - Math.abs(Number(a.amount_usd_base) || 0))
         .slice(0, 5);
     const topExpenseFn = (entries: any[]) => entries
         .filter(e => ['loss', 'fee', 'tax'].includes(e.entry_type))
-        .sort((a, b) => (Number(b.amount_usd_base) || 0) - (Number(a.amount_usd_base) || 0))
+        .sort((a, b) => Math.abs(Number(b.amount_usd_base) || 0) - Math.abs(Number(a.amount_usd_base) || 0))
         .slice(0, 5);
 
     return {
