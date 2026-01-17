@@ -122,7 +122,7 @@ export async function DELETE(
 
     const entriesCount = entryIds?.length || 0;
     
-    const [entriesResult, goalsResult, snapshotsResult] = await Promise.all([
+    const [entriesResult, goalsResult, snapshotsResult, yearsResult] = await Promise.all([
       supabase
         .from("entries")
         .delete()
@@ -139,7 +139,12 @@ export async function DELETE(
         .delete()
         .eq("user_id", user.id)
         .gte("snapshot_date", startDate)
-        .lte("snapshot_date", endDate)
+        .lte("snapshot_date", endDate),
+      supabase
+        .from("financial_years")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("year", year)
     ]);
 
     if (entriesResult.error) {
@@ -151,6 +156,9 @@ export async function DELETE(
     }
     if (snapshotsResult.error) {
       console.error("Failed to delete snapshots:", snapshotsResult.error);
+    }
+    if (yearsResult.error) {
+      console.error("Failed to delete year record:", yearsResult.error);
     }
 
     const storageErrors: string[] = [];
