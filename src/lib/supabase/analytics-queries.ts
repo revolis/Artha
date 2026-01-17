@@ -157,13 +157,28 @@ export async function getAnalyticsData(
   const startStr = toDateString(start);
   const endStr = toDateString(end);
 
-  const { data: currentEntriesRaw, error: currentError } = await supabase
-    .from("entries")
-    .select("id, entry_date, entry_type, amount_usd_base, notes, categories(name), sources(platform)")
-    .eq("user_id", userId)
-    .gte("entry_date", startStr)
-    .lte("entry_date", endStr)
-    .order("entry_date", { ascending: true });
+  let currentEntriesRaw: any[] | null = null;
+  let currentError: any = null;
+
+  if (period === "all" && !customStart && !customEnd) {
+    const result = await supabase
+      .from("entries")
+      .select("id, entry_date, entry_type, amount_usd_base, notes, categories(name), sources(platform)")
+      .eq("user_id", userId)
+      .order("entry_date", { ascending: true });
+    currentEntriesRaw = result.data;
+    currentError = result.error;
+  } else {
+    const result = await supabase
+      .from("entries")
+      .select("id, entry_date, entry_type, amount_usd_base, notes, categories(name), sources(platform)")
+      .eq("user_id", userId)
+      .gte("entry_date", startStr)
+      .lte("entry_date", endStr)
+      .order("entry_date", { ascending: true });
+    currentEntriesRaw = result.data;
+    currentError = result.error;
+  }
 
   if (currentError) {
     throw new Error("Failed to fetch analytics data: " + currentError.message);
@@ -174,6 +189,14 @@ export async function getAnalyticsData(
     categories: Array.isArray(e.categories) ? e.categories[0] : e.categories,
     sources: Array.isArray(e.sources) ? e.sources[0] : e.sources,
   }));
+
+  if (period === "all" && currentEntries.length > 0) {
+    const entryDates = currentEntries.map(e => parseISO(e.entry_date)).filter(d => !isNaN(d.getTime()));
+    if (entryDates.length > 0) {
+      start = entryDates.reduce((min, d) => d < min ? d : min, entryDates[0]);
+      end = entryDates.reduce((max, d) => d > max ? d : max, entryDates[0]);
+    }
+  }
 
   let prevTotals = { income: 0, expenses: 0, net: 0 };
   
