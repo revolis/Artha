@@ -83,6 +83,22 @@ The application uses Supabase's hosted PostgreSQL database. Database schema migr
 
 ## Recent Changes
 
+- 2026-01-17: Year deletion feature fixed
+  - Replaced stored procedure calls with direct Supabase queries
+  - Year summary API now returns entry, goal, attachment, and snapshot counts
+  - Year delete API properly removes all data for a year
+
+- 2026-01-17: Entries page UI overhaul
+  - Premium clean table-based design
+  - Only Type and Amount are color-coded (green for profit, red for loss)
+  - Search, type filter, and timeframe filter with custom date range
+  - Auto-loads entries for current year
+  - Expandable notes for long entries
+
+- 2026-01-17: Exchange rate settings update
+  - Default rate changed to 1 USD = 147 NPR
+  - "Set as Default" button saves manually entered rate
+
 - 2026-01-17: AI Insights page enhancement
   - New date filters: This Month, This Quarter, 6 Months, This Year, All Time, Custom Range
   - Custom date range picker with calendar popover

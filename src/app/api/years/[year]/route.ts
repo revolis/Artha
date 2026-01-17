@@ -21,28 +21,57 @@ export async function GET(
     return NextResponse.json({ error: "Invalid year" }, { status: 400 });
   }
 
-  const { data: summary, error: summaryError } = await supabase
-    .rpc("get_year_delete_summary", { p_year: year })
-    .single();
+  try {
+    const startDate = `${year}-01-01`;
+    const endDate = `${year}-12-31`;
 
-  if (summaryError) {
+    const [entriesResult, goalsResult, snapshotsResult] = await Promise.all([
+      supabase
+        .from("entries")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .gte("entry_date", startDate)
+        .lte("entry_date", endDate),
+      supabase
+        .from("goals")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("year", year),
+      supabase
+        .from("portfolio_snapshots")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .gte("snapshot_date", startDate)
+        .lte("snapshot_date", endDate)
+    ]);
+
+    const { data: entryIds } = await supabase
+      .from("entries")
+      .select("id")
+      .eq("user_id", user.id)
+      .gte("entry_date", startDate)
+      .lte("entry_date", endDate);
+
+    let attachmentsCount = 0;
+    if (entryIds && entryIds.length > 0) {
+      const { count } = await supabase
+        .from("attachments")
+        .select("id", { count: "exact", head: true })
+        .in("entry_id", entryIds.map(e => e.id));
+      attachmentsCount = count || 0;
+    }
+
+    return NextResponse.json({
+      year,
+      entries: entriesResult.count ?? 0,
+      goals: goalsResult.count ?? 0,
+      attachments: attachmentsCount,
+      snapshots: snapshotsResult.count ?? 0
+    });
+  } catch (error) {
+    console.error("Year summary error:", error);
     return NextResponse.json({ error: "Failed to load delete summary" }, { status: 500 });
   }
-
-  const summaryRow = summary as {
-    entries_count?: number;
-    goals_count?: number;
-    attachments_count?: number;
-    snapshots_count?: number;
-  };
-
-  return NextResponse.json({
-    year,
-    entries: summaryRow.entries_count ?? 0,
-    goals: summaryRow.goals_count ?? 0,
-    attachments: summaryRow.attachments_count ?? 0,
-    snapshots: summaryRow.snapshots_count ?? 0
-  });
 }
 
 export async function DELETE(
@@ -61,60 +90,106 @@ export async function DELETE(
     return NextResponse.json({ error: "Invalid year" }, { status: 400 });
   }
 
-  const { data: deletion, error: deleteError } = await supabase
-    .rpc("delete_financial_year", { p_year: year })
-    .single();
+  try {
+    const startDate = `${year}-01-01`;
+    const endDate = `${year}-12-31`;
 
-  if (deleteError) {
-    return NextResponse.json({ error: "Failed to delete year" }, { status: 500 });
-  }
-
-  const deletionRow = deletion as {
-    entries_deleted?: number;
-    goals_deleted?: number;
-    attachments_deleted?: number;
-    snapshots_deleted?: number;
-    drive_file_ids?: string[];
-  };
-
-  const driveFileIds = (deletionRow?.drive_file_ids ?? []) as string[];
-  const storageErrors: string[] = [];
-
-  if (driveFileIds.length > 0) {
-    const { data: tokenRow } = await supabaseServer
-      .from("drive_tokens")
-      .select("refresh_token")
+    const { data: entryIds } = await supabase
+      .from("entries")
+      .select("id")
       .eq("user_id", user.id)
-      .single();
+      .gte("entry_date", startDate)
+      .lte("entry_date", endDate);
 
-    if (!tokenRow?.refresh_token) {
-      storageErrors.push(...driveFileIds);
-    } else {
-      try {
-        const accessToken = await getDriveAccessToken(tokenRow.refresh_token);
-        for (const fileId of driveFileIds) {
-          const response = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${accessToken}` }
-          });
-          if (!response.ok && response.status !== 404) {
-            storageErrors.push(fileId);
-          }
-        }
-      } catch (err) {
-        storageErrors.push(...driveFileIds);
+    let attachmentsDeleted = 0;
+    let driveFileIds: string[] = [];
+
+    if (entryIds && entryIds.length > 0) {
+      const ids = entryIds.map(e => e.id);
+
+      const { data: attachments } = await supabase
+        .from("attachments")
+        .select("id, drive_file_id")
+        .in("entry_id", ids);
+
+      if (attachments) {
+        driveFileIds = attachments
+          .filter(a => a.drive_file_id)
+          .map(a => a.drive_file_id as string);
+
+        const { count } = await supabase
+          .from("attachments")
+          .delete()
+          .in("entry_id", ids)
+          .select("id", { count: "exact", head: true });
+        attachmentsDeleted = count || attachments.length;
       }
     }
-  }
 
-  return NextResponse.json({
-    ok: true,
-    deleted: {
-      entries: deletionRow?.entries_deleted ?? 0,
-      goals: deletionRow?.goals_deleted ?? 0,
-      attachments: deletionRow?.attachments_deleted ?? 0,
-      snapshots: deletionRow?.snapshots_deleted ?? 0
-    },
-    storageErrors
-  });
+    const [entriesResult, goalsResult, snapshotsResult] = await Promise.all([
+      supabase
+        .from("entries")
+        .delete()
+        .eq("user_id", user.id)
+        .gte("entry_date", startDate)
+        .lte("entry_date", endDate)
+        .select("id", { count: "exact", head: true }),
+      supabase
+        .from("goals")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("year", year)
+        .select("id", { count: "exact", head: true }),
+      supabase
+        .from("portfolio_snapshots")
+        .delete()
+        .eq("user_id", user.id)
+        .gte("snapshot_date", startDate)
+        .lte("snapshot_date", endDate)
+        .select("id", { count: "exact", head: true })
+    ]);
+
+    const storageErrors: string[] = [];
+
+    if (driveFileIds.length > 0) {
+      const { data: tokenRow } = await supabaseServer
+        .from("drive_tokens")
+        .select("refresh_token")
+        .eq("user_id", user.id)
+        .single();
+
+      if (!tokenRow?.refresh_token) {
+        storageErrors.push(...driveFileIds);
+      } else {
+        try {
+          const accessToken = await getDriveAccessToken(tokenRow.refresh_token);
+          for (const fileId of driveFileIds) {
+            const response = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
+              method: "DELETE",
+              headers: { Authorization: `Bearer ${accessToken}` }
+            });
+            if (!response.ok && response.status !== 404) {
+              storageErrors.push(fileId);
+            }
+          }
+        } catch (err) {
+          storageErrors.push(...driveFileIds);
+        }
+      }
+    }
+
+    return NextResponse.json({
+      ok: true,
+      deleted: {
+        entries: entriesResult.count ?? 0,
+        goals: goalsResult.count ?? 0,
+        attachments: attachmentsDeleted,
+        snapshots: snapshotsResult.count ?? 0
+      },
+      storageErrors
+    });
+  } catch (error) {
+    console.error("Year delete error:", error);
+    return NextResponse.json({ error: "Failed to delete year" }, { status: 500 });
+  }
 }
