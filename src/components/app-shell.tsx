@@ -37,7 +37,7 @@ const navItems = [
   { href: "/tax-fees", label: "Tax & Fees", icon: Briefcase },
   { href: "/reports", label: "Reports", icon: FileText },
   { href: "/sources", label: "Sources", icon: Layers },
-  { href: "/insights", label: "Gemini Insights", icon: PieChart },
+  { href: "/insights", label: "AI Insights", icon: PieChart },
   { href: "/settings", label: "Settings", icon: Settings }
 ];
 

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import OpenAI from "openai";
 
 import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 import { getAnalyticsData, Period } from "@/lib/supabase/analytics-queries";
@@ -204,9 +204,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    return NextResponse.json({ error: "Gemini API key not configured" }, { status: 500 });
+    return NextResponse.json({ error: "OpenAI API key not configured" }, { status: 500 });
   }
 
   try {
@@ -266,14 +266,27 @@ export async function POST(request: Request) {
       })),
     };
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const openai = new OpenAI({ apiKey });
 
     const prompt = getPromptForType(insightType, getPeriodLabel(period, customStart, customEnd), context);
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert personal finance advisor. Provide clear, actionable insights based on the user's financial data. Use markdown formatting for structure."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      max_tokens: 2000,
+      temperature: 0.7,
+    });
+
+    const text = completion.choices[0]?.message?.content || "No analysis generated.";
 
     return NextResponse.json({ analysis: text });
   } catch (error: any) {
