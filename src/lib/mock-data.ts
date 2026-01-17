@@ -327,21 +327,33 @@ export const categorySeries = defaultYear.categoryContribution;
 export const portfolioSeries = defaultYear.portfolioSeries;
 export const entries = defaultYear.recentEntries;
 
-export const heatmapDays = Array.from({ length: 180 }).map((_, index) => {
-  const baseDate = new Date(Date.UTC(2026, 0, 1));
-  baseDate.setUTCDate(baseDate.getUTCDate() + index);
-  const dateStr = baseDate.toISOString().slice(0, 10);
-  
-  const value = Math.round(Math.sin(index / 7) * 800 + (Math.random() - 0.5) * 400);
-  return {
-    date: dateStr,
-    net: value,
-    profit: value > 0 ? value : 0,
-    loss: value < 0 ? Math.abs(value) : 0,
-    topCategory: ["Consulting", "Affiliates", "Products"][index % 3],
-    topSource: ["Client Work", "Amazon", "Gumroad"][index % 3]
-  };
-});
+function generateHeatmapForYear(year: number) {
+  const daysInYear = year % 4 === 0 ? 366 : 365;
+  return Array.from({ length: daysInYear }).map((_, index) => {
+    const baseDate = new Date(Date.UTC(year, 0, 1));
+    baseDate.setUTCDate(baseDate.getUTCDate() + index);
+    const dateStr = baseDate.toISOString().slice(0, 10);
+    
+    const seed = index + year * 1000;
+    const value = Math.round(Math.sin(seed / 7) * 800 + Math.cos(seed / 11) * 300);
+    return {
+      date: dateStr,
+      net: value,
+      profit: value > 0 ? value : 0,
+      loss: value < 0 ? Math.abs(value) : 0,
+      topCategory: ["Consulting", "Affiliates", "Products"][index % 3],
+      topSource: ["Client Work", "Amazon", "Gumroad"][index % 3]
+    };
+  });
+}
+
+export const heatmapByYear: Record<number, ReturnType<typeof generateHeatmapForYear>> = {
+  2025: generateHeatmapForYear(2025),
+  2026: generateHeatmapForYear(2026),
+  2027: generateHeatmapForYear(2027),
+};
+
+export const heatmapDays = heatmapByYear[2026];
 
 export const goals = [
   {

@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 
 import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 import { getAvailableYears, getDashboardYearData } from "@/lib/supabase/queries";
-import { isAuthDisabled, dashboardYears, heatmapDays } from "@/lib/mock-data";
+import { isAuthDisabled, dashboardYears, heatmapByYear } from "@/lib/mock-data";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
         categoryContribution: mockData.categoryContribution,
         portfolioSeries: mockData.portfolioSeries,
         recentEntries: mockData.recentEntries,
-        heatmapDays: selectedYear === 2026 ? heatmapDays : [],
+        heatmapDays: heatmapByYear[selectedYear] ?? [],
         hasTaxOrFee: false,
       },
     });
