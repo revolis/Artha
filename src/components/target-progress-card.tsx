@@ -3,7 +3,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { CurrencyDisplay } from "@/components/currency-display";
-import { Progress } from "@/components/ui/progress";
 
 type TargetProgressCardProps = {
   title: string;
@@ -35,18 +34,7 @@ export function TargetProgressCard({
       <CardContent className="flex h-full flex-col justify-between gap-6 p-6">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-mutedForeground">{subtitle}</p>
-          <div className="flex items-baseline justify-between">
-            <h3 className="text-lg font-medium">{title}</h3>
-            {isCompleted ? (
-              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/60 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-mutedForeground">
-                Avg monthly income
-                <CurrencyDisplay
-                  value={averageMonthlyNet}
-                  className="text-xs font-semibold text-positive"
-                />
-              </div>
-            ) : null}
-          </div>
+          <h3 className="text-lg font-medium">{title}</h3>
         </div>
 
         <div className="space-y-4">
@@ -56,7 +44,7 @@ export function TargetProgressCard({
           </div>
 
           <div className="relative">
-            {percentage > 100 ? (
+            {percentage >= 100 ? (
               <div className="relative h-2 w-full overflow-hidden rounded-full bg-muted">
                 <div
                   className="h-full rounded-full bg-positive transition-all"
@@ -76,7 +64,12 @@ export function TargetProgressCard({
                 />
               </div>
             ) : (
-              <Progress value={percentage} className="h-2" />
+              <div className="relative h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-positive transition-all"
+                  style={{ width: `${percentage}%` }}
+                />
+              </div>
             )}
           </div>
 
