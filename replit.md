@@ -83,6 +83,14 @@ The application uses Supabase's hosted PostgreSQL database. Database schema migr
 
 ## Recent Changes
 
+- 2026-01-17: Analytics feature fixes and data integrity improvements
+  - Fixed Supabase array join normalization for categories/sources
+  - Added proper error handling with throw on Supabase errors
+  - Fixed period date range calculations for accurate growth comparisons
+  - Added null/NaN guards in UI for divide-by-zero and missing values
+  - "All Time" period now correctly shows no growth comparison (N/A)
+  - Goals table now has name and purpose columns in database
+
 - 2026-01-17: Production readiness - removed all mock data
   - Removed DISABLE_AUTH environment variable and mock data file
   - All API routes now require real Supabase authentication

@@ -18,43 +18,43 @@ export async function getAnalyticsData(
     let previousStart = new Date();
     let previousEnd = new Date(); // To calculate growth
 
-    // Simple period logic (can be refined)
+    // Calculate date ranges for current and previous periods
+    // Both periods use inclusive bounds [start, end] for symmetric comparison
     switch (period) {
         case "7d":
             start = subDays(now, 7);
             previousStart = subDays(start, 7);
-            previousEnd = start;
+            previousEnd = new Date(start.getTime() - 1); // 1ms before start to avoid overlap
             break;
         case "30d":
             start = subDays(now, 30);
             previousStart = subDays(start, 30);
-            previousEnd = start;
+            previousEnd = new Date(start.getTime() - 1);
             break;
         case "3m":
             start = subMonths(now, 3);
             previousStart = subMonths(start, 3);
-            previousEnd = start;
+            previousEnd = new Date(start.getTime() - 1);
             break;
         case "6m":
             start = subMonths(now, 6);
             previousStart = subMonths(start, 6);
-            previousEnd = start;
+            previousEnd = new Date(start.getTime() - 1);
             break;
         case "ytd":
             start = startOfYear(now);
-            // Compare to same period in previous year (e.g., Jan 1 - Jan 17 this year vs Jan 1 - Jan 17 last year)
+            // Compare to same period in previous year
             previousStart = startOfYear(subYears(now, 1));
-            previousEnd = subYears(end, 1); // Use end (which is now) shifted back one year
+            previousEnd = new Date(subYears(end, 1).getTime() - 1);
             break;
         case "1y":
             start = subYears(now, 1);
             previousStart = subYears(start, 1);
-            previousEnd = start;
+            previousEnd = new Date(start.getTime() - 1);
             break;
         case "all":
             start = new Date(0); // Beginning of time
             // For "all" time, there's no meaningful previous period
-            // Set to same as start to indicate no comparison available
             previousStart = new Date(0);
             previousEnd = new Date(0);
             break;
@@ -63,10 +63,9 @@ export async function getAnalyticsData(
     if (customStart && customEnd) {
         start = new Date(customStart);
         end = new Date(customEnd);
-        // Calc duration
         const duration = end.getTime() - start.getTime();
-        previousEnd = start;
         previousStart = new Date(start.getTime() - duration);
+        previousEnd = new Date(start.getTime() - 1);
     }
 
     // 2. Fetch Data (Current & Previous)
@@ -98,7 +97,7 @@ export async function getAnalyticsData(
             .select("amount_usd_base, entry_type")
             .eq("user_id", userId)
             .gte("entry_date", previousStart.toISOString())
-            .lt("entry_date", previousEnd.toISOString());
+            .lte("entry_date", previousEnd.toISOString());
         prevEntriesRaw = result.data;
         prevError = result.error;
     }
