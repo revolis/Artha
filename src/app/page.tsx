@@ -185,7 +185,7 @@ export default function LandingPage() {
                 Follow on X (Twitter)
               </a>
               <a 
-                href="mailto:contact@artha.app"
+                href="mailto:rabinacharya092@gmail.com"
                 className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-6 py-3 text-sm font-medium transition hover:bg-muted"
               >
                 <Mail className="h-4 w-4" />
