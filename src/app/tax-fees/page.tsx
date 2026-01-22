@@ -35,11 +35,7 @@ export default function TaxFeesPage() {
   const [data, setData] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
 
-  React.useEffect(() => {
-    fetchData();
-  }, [year]);
-
-  const fetchData = async () => {
+  const fetchData = React.useCallback(async () => {
     setLoading(true);
     try {
       const query = year === 'all' ? '' : `?year=${year}`;
@@ -53,7 +49,11 @@ export default function TaxFeesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [year]);
+
+  React.useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleExport = (format: 'csv' | 'json') => {
     const query = year === 'all' ? `?format=${format}` : `?year=${year}&format=${format}`;

@@ -112,6 +112,7 @@ export function EntryForm({ initialData, onSubmit, onDelete, isSubmitting, isDel
         }).catch(console.error);
 
         return () => { active = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Update attachments if initialData changes (e.g. after fetch in parent)

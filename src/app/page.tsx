@@ -155,13 +155,13 @@ export default function LandingPage() {
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-3xl font-bold">About ARTHA</h2>
             <p className="mt-6 text-muted-foreground leading-relaxed">
-              ARTHA (meaning "wealth" or "purpose" in Sanskrit) is a comprehensive personal finance 
+              ARTHA (meaning &ldquo;wealth&rdquo; or &ldquo;purpose&rdquo; in Sanskrit) is a comprehensive personal finance 
               management application designed to help you understand and optimize your financial life. 
               Built with modern technology and a focus on user experience, ARTHA provides the tools 
               you need to track every aspect of your finances in one place.
             </p>
             <p className="mt-4 text-muted-foreground leading-relaxed">
-              Whether you're tracking daily expenses, monitoring investment portfolios, setting 
+              Whether you&apos;re tracking daily expenses, monitoring investment portfolios, setting 
               savings goals, or analyzing spending patterns, ARTHA gives you the insights and 
               control you need to achieve financial success.
             </p>
@@ -172,7 +172,7 @@ export default function LandingPage() {
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-3xl font-bold">Get In Touch</h2>
             <p className="mt-4 text-muted-foreground">
-              Have questions or feedback? We'd love to hear from you.
+              Have questions or feedback? We&apos;d love to hear from you.
             </p>
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <a 

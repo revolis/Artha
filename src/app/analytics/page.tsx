@@ -68,11 +68,7 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = React.useState(true);
   const [data, setData] = React.useState<any>(null);
 
-  React.useEffect(() => {
-    fetchData();
-  }, [period]);
-
-  const fetchData = async () => {
+  const fetchData = React.useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetchWithAuth(`/api/analytics?period=${period}`);
@@ -85,7 +81,11 @@ export default function AnalyticsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [period]);
+
+  React.useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const ChartTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
