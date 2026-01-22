@@ -34,8 +34,19 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => null);
-  if (!body?.timeframe || !body?.target_type || body?.target_value_usd == null || !body?.start_date || !body?.end_date) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  if (!body) {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
+  
+  const missingFields = [];
+  if (!body.timeframe) missingFields.push("timeframe");
+  if (!body.target_type) missingFields.push("target_type");
+  if (body.target_value_usd == null) missingFields.push("target_value_usd");
+  if (!body.start_date) missingFields.push("start_date");
+  if (!body.end_date) missingFields.push("end_date");
+  
+  if (missingFields.length > 0) {
+    return NextResponse.json({ error: `Missing required fields: ${missingFields.join(", ")}` }, { status: 400 });
   }
 
   const targetValue = Number(body.target_value_usd);
