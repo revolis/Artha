@@ -29,7 +29,7 @@ import { usePrivateMode } from "@/components/private-mode-provider";
 import { SignOutButton } from "@/components/sign-out-button";
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: Gauge },
+  { href: "/dashboard", label: "Dashboard", icon: Gauge },
   { href: "/entries", label: "Entries", icon: ArrowUpDown },
   { href: "/portfolio", label: "Portfolio", icon: LineChart },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },

@@ -1,341 +1,222 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { fetchWithAuth } from "@/lib/supabase/browser";
+import { useRouter } from "next/navigation";
+import { 
+  BarChart3, 
+  LineChart, 
+  PieChart, 
+  Target, 
+  Shield, 
+  TrendingUp,
+  ArrowRight,
+  Mail,
+  ExternalLink
+} from "lucide-react";
 
-import { YearSwitcher } from "@/components/year-switcher";
-import { YearDeleteDialog } from "@/components/year-delete-dialog";
-import { YearAddDialog } from "@/components/year-add-dialog";
-import { DateRangePicker, type DateRangePreset } from "@/components/date-range-picker";
-import { DateRange } from "react-day-picker";
-import { TargetProgressCard } from "@/components/target-progress-card";
-import { PortfolioHeroCard } from "@/components/portfolio-hero-card";
-import { KpiCard } from "@/components/kpi-card";
-import { ChartCard } from "@/components/chart-card";
-import { NetPLChart } from "@/components/charts/net-pl-chart";
-import { CategoryDonut } from "@/components/charts/category-donut";
-import { PortfolioAreaChart } from "@/components/charts/portfolio-area-chart";
-import { MaskedValue } from "@/components/masked-value";
-import { HeatmapGrid } from "@/components/heatmap-grid";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { CurrencyDisplay } from "@/components/currency-display";
-import type { DashboardYearData, NetSeriesKey } from "@/lib/supabase/queries";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
-const rangeOptions: { label: string; value: NetSeriesKey }[] = [
-  { label: "Monthly", value: "monthly" },
-  { label: "Quarterly", value: "quarterly" },
-  { label: "6 Months", value: "halfYear" },
-  { label: "Yearly", value: "yearly" },
-  { label: "All", value: "all" }
+const features = [
+  {
+    icon: BarChart3,
+    title: "Financial Analytics",
+    description: "Track income, expenses, and get detailed breakdowns by category and source."
+  },
+  {
+    icon: LineChart,
+    title: "Portfolio Tracking",
+    description: "Monitor your investments and visualize portfolio growth over time."
+  },
+  {
+    icon: PieChart,
+    title: "AI-Powered Insights",
+    description: "Get personalized financial analysis and recommendations powered by ChatGPT."
+  },
+  {
+    icon: Target,
+    title: "Goal Setting",
+    description: "Set financial goals and track your progress with visual indicators."
+  },
+  {
+    icon: TrendingUp,
+    title: "P/L Analysis",
+    description: "Comprehensive profit and loss tracking with year-over-year comparisons."
+  },
+  {
+    icon: Shield,
+    title: "Secure & Private",
+    description: "Your data is encrypted and stored securely. Privacy mode hides sensitive values."
+  }
 ];
 
-function createEmptyDashboard(year: number): DashboardYearData {
-  return {
-    year,
-    targets: [],
-    portfolio: { totalValue: 0, changeValue: 0, changePercent: 0 },
-    pnl: { net: 0, profit: 0, loss: 0, fees: 0, taxes: 0 },
-    averageMonthlyNet: 0,
-    categoryContribution: [],
-    netSeries: { monthly: [], quarterly: [], halfYear: [], yearly: [], all: [] },
-    portfolioSeries: [],
-    recentEntries: [],
-    heatmapDays: [],
-    hasTaxOrFee: false
-  };
-}
-
-export default function DashboardPage() {
-  const currentYear = new Date().getUTCFullYear();
-  const [selectedYear, setSelectedYear] = React.useState(currentYear);
-  const [range, setRange] = React.useState<NetSeriesKey>("monthly");
-  const [years, setYears] = React.useState<number[]>([currentYear]);
-  const [dashboard, setDashboard] = React.useState<DashboardYearData>(() =>
-    createEmptyDashboard(currentYear)
-  );
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
-  const [deleteYear, setDeleteYear] = React.useState<number | null>(null);
-  const [deleteYearOpen, setDeleteYearOpen] = React.useState(false);
-  const [addYearOpen, setAddYearOpen] = React.useState(false);
-
-  // Date Range State
-  const [dateRange, setDateRange] = React.useState<DateRange | undefined>();
-  const [rangePreset, setRangePreset] = React.useState<DateRangePreset>("ytd");
+export default function LandingPage() {
+  const router = useRouter();
+  const [checking, setChecking] = React.useState(true);
 
   React.useEffect(() => {
-    let active = true;
-    setLoading(true);
-    setError(null);
+    const supabase = createSupabaseBrowserClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        router.replace("/dashboard");
+      } else {
+        setChecking(false);
+      }
+    });
+  }, [router]);
 
-    fetchWithAuth(`/api/dashboard?year=${selectedYear}`, { cache: "no-store" })
-      .then(async (response) => {
-        if (!response.ok) {
-          const payload = await response.json().catch(() => ({}));
-          throw new Error(payload.error || "Failed to load dashboard");
-        }
-        return response.json();
-      })
-      .then((payload) => {
-        if (!active) return;
-        setDashboard(payload.dashboard);
-        setYears(payload.years ?? []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        if (!active) return;
-        setError(err.message || "Failed to load dashboard");
-        setDashboard(createEmptyDashboard(selectedYear));
-        setLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [selectedYear]);
-
-  const rangeLabel =
-    rangeOptions.find((item) => item.value === range)?.label ?? "Monthly";
-
-  const targetLayoutClass =
-    dashboard.targets.length === 1
-      ? "flex items-center justify-center"
-      : "grid gap-6 md:grid-cols-2 xl:grid-cols-3";
-  const targetSize = dashboard.targets.length === 1 ? "lg" : "md";
-
-  const contributionData = dashboard.categoryContribution.length
-    ? dashboard.categoryContribution
-    : [{ name: "No data", value: 0 }];
-
-  const [firstCategory] = contributionData;
-  const fallbackCategory = firstCategory ?? { name: "Uncategorized", value: 0 };
-  const topCategory = contributionData.reduce(
-    (prev, category) => (category.value > prev.value ? category : prev),
-    fallbackCategory
-  );
-  const topPercent = Math.round(topCategory.value);
-
-  const handleAddYearRequest = React.useCallback(() => {
-    setAddYearOpen(true);
-  }, []);
-
-  const handleYearAdded = React.useCallback(async (year: number) => {
-    try {
-      setYears((prev) => [...prev, year].sort((a, b) => a - b));
-      setSelectedYear(year);
-    } catch (err) {
-      console.error(err);
-    }
-  }, []);
-
-  const handleDeleteYearRequest = React.useCallback((year: number) => {
-    setDeleteYear(year);
-    setDeleteYearOpen(true);
-  }, []);
-
-  const handleYearDeleted = React.useCallback(
-    (year: number) => {
-      setYears((prev) => {
-        const next = prev.filter((item) => item !== year);
-        if (selectedYear === year) {
-          const fallback = next[next.length - 1] ?? new Date().getUTCFullYear();
-          setSelectedYear(fallback);
-        }
-        return next;
-      });
-    },
-    [selectedYear]
-  );
+  if (checking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#faf8f5]">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-accent border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-10">
-      <div className="space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-mutedForeground">
-              Financial dashboard
-            </p>
-            <h1 className="text-3xl font-semibold">Financial Dashboard for Year {selectedYear}</h1>
-          </div>
+    <div className="min-h-screen bg-[#faf8f5]">
+      <header className="sticky top-0 z-50 border-b border-border/50 bg-[#faf8f5]/95 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+          <Link href="/" className="flex items-center gap-3">
+            <Image src="/logo.png" alt="ARTHA" width={40} height={40} className="h-10 w-10" />
+            <span className="text-xl font-semibold">ARTHA</span>
+          </Link>
+          <nav className="hidden items-center gap-6 md:flex">
+            <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition">Features</a>
+            <a href="#about" className="text-sm text-muted-foreground hover:text-foreground transition">About</a>
+            <a href="#contact" className="text-sm text-muted-foreground hover:text-foreground transition">Contact</a>
+          </nav>
           <div className="flex items-center gap-3">
-            <Link href="/entries/new" className={cn(buttonVariants({ variant: "default" }))}>
-              Add Entry
+            <Link href="/login">
+              <Button variant="outline" size="sm">Sign In</Button>
+            </Link>
+            <Link href="/login">
+              <Button size="sm" className="bg-accent hover:bg-accent/90">Get Started</Button>
             </Link>
           </div>
         </div>
-        <YearSwitcher
-          years={years}
-          selectedYear={selectedYear}
-          onSelect={setSelectedYear}
-          onAddYear={handleAddYearRequest}
-          onDeleteYear={handleDeleteYearRequest}
-        />
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-xs uppercase tracking-[0.15em] text-mutedForeground">Avg Monthly Income</span>
-            <span className="text-sm font-semibold text-positive">
-              <CurrencyDisplay value={dashboard.averageMonthlyNet} />
-            </span>
-          </div>
-          <DateRangePicker
-            date={dateRange}
-            onSelect={(range, preset) => {
-              setDateRange(range);
-              setRangePreset(preset);
-            }}
-            defaultPreset="ytd"
-          />
-        </div>
-      </div>
+      </header>
 
-      {error ? (
-        <div className="rounded-3xl border border-border bg-card p-6 text-sm text-negative">
-          {error}
-        </div>
-      ) : null}
-
-      <section className={targetLayoutClass}>
-        {dashboard.targets.length ? (
-          dashboard.targets.map((target) => (
-            <div key={target.id} className={cn(targetSize === "lg" && "w-full max-w-xl")}>
-              <TargetProgressCard
-                title={target.title}
-                subtitle={target.subtitle}
-                progress={target.progress}
-                current={target.currentValue}
-                target={target.targetValue}
-                averageMonthlyNet={dashboard.averageMonthlyNet}
-                size={targetSize}
-              />
+      <main>
+        <section className="px-6 py-20 md:py-32">
+          <div className="mx-auto max-w-4xl text-center">
+            <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
+              Take Control of Your
+              <span className="block text-accent">Financial Future</span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
+              ARTHA is your personal finance command center. Track income, manage expenses, 
+              monitor investments, and get AI-powered insights to make smarter financial decisions.
+            </p>
+            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Link href="/login">
+                <Button size="lg" className="gap-2 bg-accent hover:bg-accent/90">
+                  Start Managing Your Finances
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+              <a href="#features">
+                <Button variant="outline" size="lg">
+                  Learn More
+                </Button>
+              </a>
             </div>
-          ))
-        ) : (
-          <div className="rounded-3xl border border-dashed border-border bg-card/60 p-6 text-center text-sm text-mutedForeground">
-            {loading ? "Loading targets..." : "No targets yet. Add a goal to track progress."}
           </div>
-        )}
-      </section>
+        </section>
 
-      <section>
-        <PortfolioHeroCard
-          totalValue={dashboard.portfolio.totalValue}
-          changeValue={dashboard.portfolio.changeValue}
-          changePercent={dashboard.portfolio.changePercent}
-          series={dashboard.portfolioSeries}
-        />
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-3">
-        <KpiCard
-          label="Net P/L"
-          value={dashboard.pnl.net}
-          tone={dashboard.pnl.net >= 0 ? "positive" : "negative"}
-        />
-        <KpiCard
-          label="Profit"
-          value={dashboard.pnl.profit}
-          tone="positive"
-        />
-        <KpiCard
-          label="Loss"
-          value={dashboard.pnl.loss}
-          tone="negative"
-        />
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-        <ChartCard title="Net P/L trend" subtitle={`Timeframe: ${rangeLabel}`}>
-          <div className="space-y-4">
-            <Tabs value={range} onValueChange={(value) => setRange(value as NetSeriesKey)}>
-              <TabsList>
-                {rangeOptions.map((option) => (
-                  <TabsTrigger key={option.value} value={option.value}>
-                    {option.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-            <NetPLChart data={dashboard.netSeries[range] ?? []} />
-          </div>
-        </ChartCard>
-        <ChartCard
-          title="Category contribution"
-          subtitle={
-            <span>
-              {topCategory.name} · <MaskedValue value={`${topPercent}%`} /> of income for{" "}
-              {selectedYear}
-            </span>
-          }
-        >
-          <CategoryDonut data={contributionData} />
-          <p className="mt-4 text-sm text-mutedForeground">
-            {topCategory.name} contributes <MaskedValue value={`${topPercent}%`} /> of income for{" "}
-            {selectedYear}.
-          </p>
-        </ChartCard>
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-        <ChartCard title="Portfolio value" subtitle="Auto snapshots">
-          <PortfolioAreaChart data={dashboard.portfolioSeries} />
-        </ChartCard>
-        <ChartCard title="Recent entries" subtitle="Latest activity">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {dashboard.recentEntries.map((entry) => (
-                <TableRow key={entry.id}>
-                  <TableCell>{entry.date}</TableCell>
-                  <TableCell className="capitalize">{entry.type}</TableCell>
-                  <TableCell>{entry.category}</TableCell>
-                  <TableCell>
-                    <CurrencyDisplay value={entry.amount} />
-                  </TableCell>
-                  <TableCell>
-                    <Link
-                      href={`/entries/${entry.id}`}
-                      className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
-                    >
-                      Edit
-                    </Link>
-                  </TableCell>
-                </TableRow>
+        <section id="features" className="border-t border-border/50 bg-white/50 px-6 py-20">
+          <div className="mx-auto max-w-6xl">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold">Everything You Need</h2>
+              <p className="mt-3 text-muted-foreground">
+                Powerful tools to manage your personal finances effectively.
+              </p>
+            </div>
+            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {features.map((feature) => (
+                <Card key={feature.title} className="border-border/40">
+                  <CardContent className="pt-6">
+                    <div className="mb-4 inline-flex rounded-lg bg-accent/10 p-2.5">
+                      <feature.icon className="h-5 w-5 text-accent" />
+                    </div>
+                    <h3 className="font-semibold">{feature.title}</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">{feature.description}</p>
+                  </CardContent>
+                </Card>
               ))}
-            </TableBody>
-          </Table>
-        </ChartCard>
-      </section>
+            </div>
+          </div>
+        </section>
 
-      <section>
-        <ChartCard title="Year heatmap" subtitle={`Daily net P/L for ${selectedYear}`}>
-          <HeatmapGrid year={selectedYear} data={dashboard.heatmapDays} />
-        </ChartCard>
-      </section>
+        <section id="about" className="border-t border-border/50 px-6 py-20">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-3xl font-bold">About ARTHA</h2>
+            <p className="mt-6 text-muted-foreground leading-relaxed">
+              ARTHA (meaning "wealth" or "purpose" in Sanskrit) is a comprehensive personal finance 
+              management application designed to help you understand and optimize your financial life. 
+              Built with modern technology and a focus on user experience, ARTHA provides the tools 
+              you need to track every aspect of your finances in one place.
+            </p>
+            <p className="mt-4 text-muted-foreground leading-relaxed">
+              Whether you're tracking daily expenses, monitoring investment portfolios, setting 
+              savings goals, or analyzing spending patterns, ARTHA gives you the insights and 
+              control you need to achieve financial success.
+            </p>
+          </div>
+        </section>
 
-      <YearDeleteDialog
-        year={deleteYear}
-        open={deleteYearOpen}
-        onOpenChange={setDeleteYearOpen}
-        onDeleted={handleYearDeleted}
-      />
+        <section id="contact" className="border-t border-border/50 bg-white/50 px-6 py-20">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-3xl font-bold">Get In Touch</h2>
+            <p className="mt-4 text-muted-foreground">
+              Have questions or feedback? We'd love to hear from you.
+            </p>
+            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+              <a 
+                href="https://x.com/0xR8N" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-6 py-3 text-sm font-medium transition hover:bg-muted"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Follow on X (Twitter)
+              </a>
+              <a 
+                href="mailto:contact@artha.app"
+                className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-6 py-3 text-sm font-medium transition hover:bg-muted"
+              >
+                <Mail className="h-4 w-4" />
+                Send Email
+              </a>
+            </div>
+          </div>
+        </section>
+      </main>
 
-      <YearAddDialog
-        open={addYearOpen}
-        onOpenChange={setAddYearOpen}
-        onYearAdded={handleYearAdded}
-      />
+      <footer className="border-t border-border/50 bg-[#f5f2ed] px-6 py-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+            <div className="flex items-center gap-3">
+              <Image src="/logo.png" alt="ARTHA" width={32} height={32} className="h-8 w-8" />
+              <span className="font-medium">ARTHA</span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Made by{" "}
+              <a 
+                href="https://x.com/0xR8N" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="font-medium text-foreground hover:text-accent transition"
+              >
+                RΛBIN
+              </a>
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

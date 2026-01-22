@@ -10,9 +10,9 @@ type LayoutShellProps = {
 
 export function LayoutShell({ children }: LayoutShellProps) {
   const pathname = usePathname();
-  const isAuthRoute = pathname.startsWith("/login");
+  const isPublicRoute = pathname === "/" || pathname.startsWith("/login");
 
-  if (isAuthRoute) {
+  if (isPublicRoute) {
     return <>{children}</>;
   }
 

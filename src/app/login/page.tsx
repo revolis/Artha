@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Image from "next/image";
+import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export default function LoginPage() {
@@ -32,7 +34,7 @@ export default function LoginPage() {
           password
         });
         if (signInError) throw signInError;
-        router.replace("/");
+        router.replace("/dashboard");
         router.refresh();
         return;
       }
@@ -44,7 +46,7 @@ export default function LoginPage() {
       if (signUpError) throw signUpError;
 
       if (data.session) {
-        router.replace("/");
+        router.replace("/dashboard");
         router.refresh();
       } else {
         setMessage("Check your email to confirm your account.");
@@ -60,10 +62,12 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center px-6 py-12">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
-          <p className="text-xs uppercase tracking-[0.2em] text-mutedForeground">Rabin Finance OS</p>
-          <h1 className="mt-2 text-3xl font-semibold">Welcome back</h1>
-          <p className="mt-2 text-sm text-mutedForeground">
-            Sign in to manage yearly performance and portfolio growth.
+          <Link href="/" className="inline-block mb-4">
+            <Image src="/logo.png" alt="ARTHA" width={60} height={60} className="h-15 w-15 mx-auto" />
+          </Link>
+          <h1 className="text-3xl font-semibold">Welcome back</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Sign in to manage your finances and track your wealth.
           </p>
         </div>
 
