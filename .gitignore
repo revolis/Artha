@@ -3,9 +3,3 @@ node_modules/
 .env.local
 .env.*.local
 .DS_Store
-<<<<<<< HEAD
-
-.vercel
-.env*.local
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

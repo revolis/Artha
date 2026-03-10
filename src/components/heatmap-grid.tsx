@@ -8,11 +8,7 @@ import {
   TooltipTrigger
 } from "@/components/ui/tooltip";
 import { MaskedValue } from "@/components/masked-value";
-<<<<<<< HEAD
-import type { HeatmapDay } from "@/lib/firebase/queries";
-=======
 import type { HeatmapDay } from "@/lib/supabase/queries";
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 
 type HeatmapGridProps = {
   year: number;
@@ -232,7 +228,3 @@ export function HeatmapGrid({ year, data }: HeatmapGridProps) {
     </TooltipProvider>
   );
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

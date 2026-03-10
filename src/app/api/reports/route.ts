@@ -1,28 +1,17 @@
 import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
-<<<<<<< HEAD
-import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
-
-export async function GET(request: NextRequest) {
-    const { client: db } = createFirebaseRouteClient();
-=======
 import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 import { nanoid } from "nanoid";
 
 export async function GET(request: NextRequest) {
     const { client: supabase } = createSupabaseRouteClient();
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     const user = await getAuthenticatedUser();
 
     if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-<<<<<<< HEAD
-    const { data, error } = await db
-=======
     const { data, error } = await supabase
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
         .from("reports")
         .select("*")
         .eq("user_id", user.id)
@@ -36,11 +25,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-<<<<<<< HEAD
-    const { client: db } = createFirebaseRouteClient();
-=======
     const { client: supabase } = createSupabaseRouteClient();
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     const user = await getAuthenticatedUser();
 
     if (!user) {
@@ -56,11 +41,7 @@ export async function POST(request: NextRequest) {
 
     try {
         // 1. Generate Report Data (Logic will reside here or in a separate lib function)
-<<<<<<< HEAD
-        const reportData = await generateReportData(db, user.id, range_start, range_end, report_type);
-=======
         const reportData = await generateReportData(supabase, user.id, range_start, range_end, report_type);
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 
         // 2. Generate Content based on format
         let content = "";
@@ -74,22 +55,14 @@ export async function POST(request: NextRequest) {
         }
 
         // 3. Save Report Metadata to Database
-<<<<<<< HEAD
-        // Note: For a real app, we'd upload 'content' to db Storage and switch 'generated_file_url'
-=======
         // Note: For a real app, we'd upload 'content' to Supabase Storage and switch 'generated_file_url'
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
         // For now, we'll simulating saving metadata. Real file storage is implied for 'generated_file_url'
         // but the requirement says "CSV/JSON download", we can serve purely from API or store.
         // Given the simplified scope, let's assume we generate on fly for download or store metadata.
         // Best practice: Upload to storage.
         // For this MVP step, we will create the DB record.
 
-<<<<<<< HEAD
-        const { data: report, error: dbError } = await db
-=======
         const { data: report, error: dbError } = await supabase
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
             .from("reports")
             .insert({
                 user_id: user.id,
@@ -115,15 +88,9 @@ export async function POST(request: NextRequest) {
 }
 
 // Helpers (mock implementation for structure, can move to lib)
-<<<<<<< HEAD
-async function generateReportData(db: any, userId: string, start: string, end: string, type: string) {
-    // Fetch entries in range
-    const { data: entries } = await db
-=======
 async function generateReportData(supabase: any, userId: string, start: string, end: string, type: string) {
     // Fetch entries in range
     const { data: entries } = await supabase
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
         .from("entries")
         .select("*, categories(*)")
         .eq("user_id", userId)
@@ -158,8 +125,3 @@ function convertToCSV(data: any) {
     ]);
     return [headers.join(","), ...rows.map((r: any[]) => r.join(","))].join("\n");
 }
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

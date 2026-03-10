@@ -3,11 +3,7 @@
 import * as React from "react";
 import { Loader2 } from "lucide-react";
 
-<<<<<<< HEAD
-import { fetchWithAuth } from "@/lib/firebase/browser";
-=======
 import { fetchWithAuth } from "@/lib/supabase/browser";
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 import {
     Dialog,
     DialogContent,
@@ -116,7 +112,3 @@ export function YearAddDialog({
         </Dialog>
     );
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

@@ -1,18 +1,10 @@
 import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
-<<<<<<< HEAD
-import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
-import { startOfYear, endOfYear, format } from "date-fns";
-
-export async function GET(request: NextRequest) {
-    const { client: db } = createFirebaseRouteClient();
-=======
 import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 import { startOfYear, endOfYear, format } from "date-fns";
 
 export async function GET(request: NextRequest) {
     const { client: supabase } = createSupabaseRouteClient();
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     const user = await getAuthenticatedUser();
 
     if (!user) {
@@ -38,11 +30,7 @@ export async function GET(request: NextRequest) {
 
     try {
         // 1. Fetch Tax and Fee Entries
-<<<<<<< HEAD
-        const { data: entries, error } = await db
-=======
         const { data: entries, error } = await supabase
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
             .from("entries")
             .select(`
             *,
@@ -63,11 +51,7 @@ export async function GET(request: NextRequest) {
         const categoryMap: Record<string, { tax: number; fee: number }> = {};
         const exchangeMap: Record<string, { fee: number; count: number }> = {};
 
-<<<<<<< HEAD
-        entries?.forEach((entry: any) => {
-=======
         entries?.forEach(entry => {
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
             const amount = Number(entry.amount_usd_base);
             const catName = entry.categories?.name || "Uncategorized";
 
@@ -124,8 +108,3 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Failed to load tax & fees data" }, { status: 500 });
     }
 }
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

@@ -1,16 +1,9 @@
 import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
-<<<<<<< HEAD
-import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
-
-export async function GET(request: NextRequest) {
-    const { client: db } = createFirebaseRouteClient();
-=======
 import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 
 export async function GET(request: NextRequest) {
     const { client: supabase } = createSupabaseRouteClient();
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     const user = await getAuthenticatedUser();
 
     if (!user) {
@@ -18,11 +11,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch or create default settings
-<<<<<<< HEAD
-    const { data, error } = await db
-=======
     const { data, error } = await supabase
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
         .from("user_settings")
         .select("*")
         .eq("user_id", user.id)
@@ -34,11 +23,7 @@ export async function GET(request: NextRequest) {
 
     if (!data) {
         // Create defaults
-<<<<<<< HEAD
-        const { data: newData, error: createError } = await db
-=======
         const { data: newData, error: createError } = await supabase
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
             .from("user_settings")
             .insert({
                 user_id: user.id,
@@ -59,11 +44,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-<<<<<<< HEAD
-    const { client: db } = createFirebaseRouteClient();
-=======
     const { client: supabase } = createSupabaseRouteClient();
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     const user = await getAuthenticatedUser();
 
     if (!user) {
@@ -81,11 +62,7 @@ export async function PATCH(request: NextRequest) {
         if (body[key] !== undefined) upgrades[key] = body[key];
     }
 
-<<<<<<< HEAD
-    const { data, error } = await db
-=======
     const { data, error } = await supabase
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
         .from("user_settings")
         .update(upgrades)
         .eq("user_id", user.id)
@@ -98,8 +75,3 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ settings: data });
 }
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

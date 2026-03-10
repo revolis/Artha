@@ -1,19 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-<<<<<<< HEAD
-import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
-import { getDashboardYearData } from "@/lib/firebase/queries";
-
-export async function GET(request: NextRequest) {
-  const { client: db } = createFirebaseRouteClient();
-=======
 import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 import { getDashboardYearData } from "@/lib/supabase/queries";
 
 export async function GET(request: NextRequest) {
   const { client: supabase } = createSupabaseRouteClient();
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -26,11 +18,7 @@ export async function GET(request: NextRequest) {
   const year = Number.isFinite(parsedYear) ? parsedYear : new Date().getUTCFullYear();
 
   try {
-<<<<<<< HEAD
-    const dashboard = await getDashboardYearData(db, user.id, year);
-=======
     const dashboard = await getDashboardYearData(supabase, user.id, year);
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     return NextResponse.json({ goals: dashboard.targets });
   } catch (err) {
     return NextResponse.json({ error: "Failed to load goals" }, { status: 500 });
@@ -38,11 +26,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-<<<<<<< HEAD
-  const { client: db } = createFirebaseRouteClient();
-=======
   const { client: supabase } = createSupabaseRouteClient();
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -82,11 +66,7 @@ export async function POST(request: NextRequest) {
     category_id: body.category_id || null
   };
 
-<<<<<<< HEAD
-  const { data: created, error: insertError } = await db
-=======
   const { data: created, error: insertError } = await supabase
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     .from("goals")
     .insert(payload)
     .select()
@@ -98,19 +78,10 @@ export async function POST(request: NextRequest) {
 
   const goalYear = new Date(payload.start_date).getUTCFullYear();
   if (Number.isFinite(goalYear)) {
-<<<<<<< HEAD
-    await db
-=======
     await supabase
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
       .from("financial_years")
       .upsert({ user_id: user.id, year: goalYear }, { onConflict: "user_id,year" });
   }
 
   return NextResponse.json({ goal: created });
 }
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

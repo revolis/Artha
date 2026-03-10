@@ -1,15 +1,10 @@
 "use client";
 
 import * as React from "react";
-<<<<<<< HEAD
-
-import { fetchWithAuth } from "@/lib/firebase/browser";
-=======
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 
 import { fetchWithAuth } from "@/lib/supabase/browser";
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -63,13 +58,9 @@ function getLocalDateTime(dateString?: string) {
     return local.toISOString().slice(0, 16);
 }
 
-<<<<<<< HEAD
-export function EntryForm({ initialData, onSubmit }: EntryFormProps) {
-=======
 export function EntryForm({ initialData, onSubmit, onDelete, isSubmitting, isDeleting }: EntryFormProps) {
     const router = useRouter();
 
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     // Data State
     const [categories, setCategories] = React.useState<CategoryOption[]>([]);
     const [sources, setSources] = React.useState<SourceOption[]>([]);
@@ -97,63 +88,11 @@ export function EntryForm({ initialData, onSubmit, onDelete, isSubmitting, isDel
     const [attachmentToDelete, setAttachmentToDelete] = React.useState<AttachmentItem | null>(null);
     const [deletingAttachment, setDeletingAttachment] = React.useState(false);
     const [error, setError] = React.useState<string | null>(null);
-<<<<<<< HEAD
-    const [metadataLoading, setMetadataLoading] = React.useState(true);
-    const [metadataError, setMetadataError] = React.useState<string | null>(null);
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 
     // Load Metadata
     React.useEffect(() => {
         let active = true;
 
-<<<<<<< HEAD
-        const loadMetadata = async () => {
-            setMetadataLoading(true);
-            setMetadataError(null);
-
-            try {
-                const [catRes, srcRes, tagRes, driveRes] = await Promise.all([
-                    fetchWithAuth("/api/categories"),
-                    fetchWithAuth("/api/sources"),
-                    fetchWithAuth("/api/tags"),
-                    fetchWithAuth("/api/drive/status")
-                ]);
-
-                if (!catRes.ok || !srcRes.ok || !tagRes.ok) {
-                    throw new Error("Failed to load metadata");
-                }
-
-                const [catData, srcData, tagData, driveData] = await Promise.all([
-                    catRes.json(),
-                    srcRes.json(),
-                    tagRes.json(),
-                    driveRes.ok ? driveRes.json() : Promise.resolve({ connected: false })
-                ]);
-
-                if (!active) return;
-                setCategories(catData.categories ?? []);
-                setSources(srcData.sources ?? []);
-                setTags(tagData.tags ?? []);
-                setDriveConnected(Boolean(driveData.connected));
-
-                if (!initialData?.category_id && catData.categories?.length > 0) {
-                    setCategoryId(catData.categories[0].id);
-                }
-            } catch {
-                if (!active) return;
-                setMetadataError("Unable to load categories, sources, or tags. Please refresh and try again.");
-            } finally {
-                if (!active) return;
-                setMetadataLoading(false);
-            }
-        };
-
-        loadMetadata();
-
-        return () => { active = false; };
-    }, [initialData?.category_id]);
-=======
         Promise.all([
             fetchWithAuth("/api/categories").then(res => res.json()),
             fetchWithAuth("/api/sources").then(res => res.json()),
@@ -175,7 +114,6 @@ export function EntryForm({ initialData, onSubmit, onDelete, isSubmitting, isDel
         return () => { active = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 
     // Update attachments if initialData changes (e.g. after fetch in parent)
     React.useEffect(() => {
@@ -187,45 +125,16 @@ export function EntryForm({ initialData, onSubmit, onDelete, isSubmitting, isDel
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-<<<<<<< HEAD
-        setError(null);
-
-        if (metadataLoading) {
-            setError("Please wait for form metadata to load.");
-            return;
-        }
-
-        if (metadataError) {
-            setError("Form metadata failed to load. Refresh and try again.");
-            return;
-        }
-
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
         if (!categoryId) {
             setError("Category is required");
             return;
         }
-<<<<<<< HEAD
-
-        const parsedAmount = Number(amount);
-        if (!Number.isFinite(parsedAmount)) {
-            setError("Amount must be a valid number.");
-            return;
-        }
-
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
         await onSubmit({
             entry_date: entryDate,
             entry_type: entryType,
             category_id: categoryId,
             source_id: sourceId,
-<<<<<<< HEAD
-            amount_usd_base: parsedAmount,
-=======
             amount_usd_base: Number(amount),
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
             fx_rate_used: fxRate ? Number(fxRate) : null,
             notes,
             tag_ids: selectedTags
@@ -256,10 +165,6 @@ export function EntryForm({ initialData, onSubmit, onDelete, isSubmitting, isDel
 
     const handleUpload = async (file: File) => {
         if (!initialData?.id) return; // Must save entry first
-<<<<<<< HEAD
-        setError(null);
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
         setUploading(true);
         try {
             const formData = new FormData();
@@ -278,10 +183,6 @@ export function EntryForm({ initialData, onSubmit, onDelete, isSubmitting, isDel
 
     const handleDeleteAttachment = async () => {
         if (!attachmentToDelete || !initialData?.id) return;
-<<<<<<< HEAD
-        setError(null);
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
         setDeletingAttachment(true);
         try {
             const res = await fetchWithAuth(`/api/entries/${initialData.id}/attachments/${attachmentToDelete.id}`, { method: "DELETE" });
@@ -298,20 +199,6 @@ export function EntryForm({ initialData, onSubmit, onDelete, isSubmitting, isDel
     return (
         <form id="entry-form" onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[2fr_1fr]">
             <div className="space-y-6 rounded-3xl border border-border bg-card p-6 shadow-soft">
-<<<<<<< HEAD
-                {metadataLoading ? (
-                    <div className="rounded-2xl border border-border bg-muted/40 px-4 py-3 text-sm text-mutedForeground">
-                        Loading categories, sources, and tags...
-                    </div>
-                ) : null}
-                {metadataError ? (
-                    <div className="rounded-2xl border border-negative/30 bg-negative/5 px-4 py-3 text-sm text-negative">
-                        {metadataError}
-                    </div>
-                ) : null}
-
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
                 {/* Core Fields */}
                 <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
@@ -376,11 +263,7 @@ export function EntryForm({ initialData, onSubmit, onDelete, isSubmitting, isDel
                                 key={tag.id}
                                 type="button"
                                 onClick={() => setSelectedTags(p => p.includes(tag.id) ? p.filter(t => t !== tag.id) : [...p, tag.id])}
-<<<<<<< HEAD
-                                className={`rounded-full border px-3 py-1 text-xs ${selectedTags.includes(tag.id) ? "bg-accent text-accentForeground border-accent" : "bg-background"}`}
-=======
                                 className={`rounded-full border px-3 py-1 text-xs ${selectedTags.includes(tag.id) ? "bg-primary text-primary-foreground border-primary" : "bg-background"}`}
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
                             >
                                 {tag.name}
                             </button>
@@ -391,17 +274,10 @@ export function EntryForm({ initialData, onSubmit, onDelete, isSubmitting, isDel
                             onKeyDown={e => e.key === "Enter" && (e.preventDefault(), handleCreateTag())} />
                         <Button type="button" variant="ghost" onClick={handleCreateTag} disabled={creatingTag}>Add</Button>
                     </div>
-<<<<<<< HEAD
-                    {tagError && <p className="text-negative text-xs">{tagError}</p>}
-                </div>
-
-                {error && <p className="text-negative text-sm">{error}</p>}
-=======
                     {tagError && <p className="text-destructive text-xs">{tagError}</p>}
                 </div>
 
                 {error && <p className="text-destructive text-sm">{error}</p>}
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
             </div>
 
             {/* Attachments Sidebar */}
@@ -421,27 +297,12 @@ export function EntryForm({ initialData, onSubmit, onDelete, isSubmitting, isDel
                             </div>
 
                             <div className="space-y-2">
-<<<<<<< HEAD
-                                {attachments.length === 0 ? (
-                                    <p className="rounded-md border border-dashed border-border px-3 py-4 text-center text-xs text-mutedForeground">
-                                        No files attached yet.
-                                    </p>
-                                ) : (
-                                    attachments.map(att => (
-                                        <div key={att.id} className="flex items-center justify-between rounded-md border p-2 text-sm">
-                                            <a href={att.drive_view_link || "#"} target="_blank" rel="noreferrer" className="truncate hover:underline max-w-[150px]">{att.file_name}</a>
-                                            <Button type="button" variant="ghost" size="sm" onClick={() => setAttachmentToDelete(att)}>Remove</Button>
-                                        </div>
-                                    ))
-                                )}
-=======
                                 {attachments.map(att => (
                                     <div key={att.id} className="flex items-center justify-between rounded-md border p-2 text-sm">
                                         <a href={att.drive_view_link || "#"} target="_blank" rel="noreferrer" className="truncate hover:underline max-w-[150px]">{att.file_name}</a>
                                         <Button type="button" variant="ghost" size="sm" onClick={() => setAttachmentToDelete(att)}>×</Button>
                                     </div>
                                 ))}
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
                             </div>
                         </div>
                     ) : (
@@ -462,7 +323,3 @@ export function EntryForm({ initialData, onSubmit, onDelete, isSubmitting, isDel
         </form>
     );
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

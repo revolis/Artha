@@ -1,16 +1,4 @@
 import { NextResponse, type NextRequest } from "next/server";
-<<<<<<< HEAD
-
-const PUBLIC_EXACT_PATHS = new Set(["/", "/login"]);
-
-function isPublicPath(pathname: string) {
-  if (PUBLIC_EXACT_PATHS.has(pathname)) {
-    return true;
-  }
-
-  if (pathname.startsWith("/reports/shared/")) {
-    return true;
-=======
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
 const PUBLIC_PATHS = new Set(["/login"]);
@@ -21,35 +9,11 @@ export async function middleware(request: NextRequest) {
   // Development flag to disable authentication - DO NOT ENABLE IN PRODUCTION
   if (process.env.DISABLE_AUTH === "true") {
     return NextResponse.next();
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
   }
 
   if (
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
-<<<<<<< HEAD
-    pathname.startsWith("/favicon")
-  ) {
-    return true;
-  }
-
-  return false;
-}
-
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  if (isPublicPath(pathname)) {
-    return NextResponse.next();
-  }
-
-  const authPresence = request.cookies.get("artha_auth")?.value;
-  if (authPresence !== "1") {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  return NextResponse.next();
-=======
     pathname.startsWith("/favicon") ||
     PUBLIC_PATHS.has(pathname)
   ) {
@@ -117,7 +81,6 @@ export function middleware(request: NextRequest) {
   }
 
   return response;
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 }
 
 export const config = {

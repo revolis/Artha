@@ -1,20 +1,12 @@
 import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
-<<<<<<< HEAD
-import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
-=======
 import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 
 export async function GET(
     request: NextRequest,
     { params }: { params: { reportId: string } }
 ) {
-<<<<<<< HEAD
-    const { client: db } = createFirebaseRouteClient();
-=======
     const { client: supabase } = createSupabaseRouteClient();
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     const user = await getAuthenticatedUser();
 
     if (!user) {
@@ -22,11 +14,7 @@ export async function GET(
     }
 
     // Fetch report definition
-<<<<<<< HEAD
-    const { data: report, error } = await db
-=======
     const { data: report, error } = await supabase
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
         .from("reports")
         .select("*")
         .eq("id", params.reportId)
@@ -39,11 +27,7 @@ export async function GET(
 
     // Re-generate content
     // Note: Duplicated logic from POST /reports. Ideally refactor later into shared lib.
-<<<<<<< HEAD
-    const { data: entries } = await db
-=======
     const { data: entries } = await supabase
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
         .from("entries")
         .select("*, categories(name)")
         .eq("user_id", user.id)
@@ -87,8 +71,3 @@ export async function GET(
 
     return NextResponse.json({ error: "Unsupported format" }, { status: 400 });
 }
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

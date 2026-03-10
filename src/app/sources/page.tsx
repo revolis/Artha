@@ -2,11 +2,7 @@
 
 import * as React from "react";
 
-<<<<<<< HEAD
-import { fetchWithAuth } from "@/lib/firebase/browser";
-=======
 import { fetchWithAuth } from "@/lib/supabase/browser";
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -36,17 +32,6 @@ type Source = {
 
 type Tag = { id: string; name: string };
 
-<<<<<<< HEAD
-async function getResponseError(response: Response, fallback: string) {
-  const payload = await response.json().catch(() => null);
-  if (payload && typeof payload.error === "string" && payload.error.trim()) {
-    return payload.error;
-  }
-  return fallback;
-}
-
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 export default function SourcesPage() {
   const [categories, setCategories] = React.useState<Category[]>([]);
   const [sources, setSources] = React.useState<Source[]>([]);
@@ -92,21 +77,9 @@ export default function SourcesPage() {
         fetchWithAuth("/api/tags", { cache: "no-store" })
       ]);
 
-<<<<<<< HEAD
-      if (!categoriesResponse.ok) {
-        throw new Error(await getResponseError(categoriesResponse, "Failed to load categories"));
-      }
-      if (!sourcesResponse.ok) {
-        throw new Error(await getResponseError(sourcesResponse, "Failed to load sources"));
-      }
-      if (!tagsResponse.ok) {
-        throw new Error(await getResponseError(tagsResponse, "Failed to load tags"));
-      }
-=======
       if (!categoriesResponse.ok) throw new Error("Failed to load categories");
       if (!sourcesResponse.ok) throw new Error("Failed to load sources");
       if (!tagsResponse.ok) throw new Error("Failed to load tags");
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 
       const categoriesPayload = await categoriesResponse.json();
       const sourcesPayload = await sourcesResponse.json();
@@ -137,11 +110,7 @@ export default function SourcesPage() {
       setNewCategory("");
       loadData();
     } else {
-<<<<<<< HEAD
-      setError(await getResponseError(response, "Failed to create category"));
-=======
       setError("Failed to create category");
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     }
   };
 
@@ -176,11 +145,7 @@ export default function SourcesPage() {
       closeCategoryDrawer();
       loadData();
     } else {
-<<<<<<< HEAD
-      setError(await getResponseError(response, "Failed to update category"));
-=======
       setError("Failed to update category");
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     }
   };
 
@@ -210,11 +175,7 @@ export default function SourcesPage() {
       setNewSource({ platform: "", handle: "", link: "", campaign_id: "" });
       loadData();
     } else {
-<<<<<<< HEAD
-      setError(await getResponseError(response, "Failed to create source"));
-=======
       setError("Failed to create source");
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     }
   };
 
@@ -259,11 +220,7 @@ export default function SourcesPage() {
       closeSourceDrawer();
       loadData();
     } else {
-<<<<<<< HEAD
-      setError(await getResponseError(response, "Failed to update source"));
-=======
       setError("Failed to update source");
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     }
   };
 
@@ -288,11 +245,7 @@ export default function SourcesPage() {
       setNewTag("");
       loadData();
     } else {
-<<<<<<< HEAD
-      setError(await getResponseError(response, "Failed to create tag"));
-=======
       setError("Failed to create tag");
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     }
   };
 
@@ -653,7 +606,3 @@ export default function SourcesPage() {
     </div>
   );
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

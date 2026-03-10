@@ -1,13 +1,8 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-<<<<<<< HEAD
-import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
-import { getAnalyticsData, Period } from "@/lib/firebase/analytics-queries";
-=======
 import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 import { getAnalyticsData, Period } from "@/lib/supabase/analytics-queries";
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 
 export const maxDuration = 60;
 
@@ -202,11 +197,7 @@ function getPeriodLabel(period: Period, customStart?: string, customEnd?: string
 }
 
 export async function POST(request: Request) {
-<<<<<<< HEAD
-  const { client: db } = createFirebaseRouteClient();
-=======
   const { client: supabase } = createSupabaseRouteClient();
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -226,11 +217,7 @@ export async function POST(request: Request) {
     const customEnd = body.customEnd;
 
     const analyticsData = await getAnalyticsData(
-<<<<<<< HEAD
-      db, 
-=======
       supabase, 
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
       user.id, 
       period,
       customStart,
@@ -312,8 +299,3 @@ export async function POST(request: Request) {
     }, { status: errorStatus });
   }
 }
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

@@ -1,18 +1,10 @@
 import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
-<<<<<<< HEAD
-import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
-import { startOfYear, endOfYear } from "date-fns";
-
-export async function GET(request: NextRequest) {
-    const { client: db } = createFirebaseRouteClient();
-=======
 import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 import { startOfYear, endOfYear } from "date-fns";
 
 export async function GET(request: NextRequest) {
     const { client: supabase } = createSupabaseRouteClient();
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     const user = await getAuthenticatedUser();
 
     if (!user) {
@@ -35,11 +27,7 @@ export async function GET(request: NextRequest) {
         endDate.setFullYear(endDate.getFullYear() + 10);
     }
 
-<<<<<<< HEAD
-    const { data: entries } = await db
-=======
     const { data: entries } = await supabase
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
         .from("entries")
         .select(`
         *,
@@ -81,8 +69,3 @@ export async function GET(request: NextRequest) {
         }
     });
 }
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

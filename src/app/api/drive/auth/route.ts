@@ -1,16 +1,10 @@
 import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 
-<<<<<<< HEAD
-import { getAuthenticatedUser } from "@/lib/firebase/route";
-
-export async function GET() {
-=======
 import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
 
 export async function GET() {
   const { client: supabase } = createSupabaseRouteClient();
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
   const user = await getAuthenticatedUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -44,8 +38,3 @@ export async function GET() {
   });
   return response;
 }
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
