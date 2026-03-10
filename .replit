@@ -1,0 +1,59 @@
+modules = ["nodejs-20", "web"]
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+packages = ["jq"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Next.js Dev Server"
+
+[[workflows.workflow]]
+name = "Next.js Dev Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev -- -p 5000 -H 0.0.0.0"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["npm", "run", "start", "--", "-p", "5000", "-H", "0.0.0.0"]
+build = ["npm", "run", "build"]
+
+[userenv]
+
+[userenv.shared]
+NEXT_PUBLIC_FIREBASE_API_KEY = ""
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN = ""
+NEXT_PUBLIC_FIREBASE_PROJECT_ID = ""
+NEXT_PUBLIC_FIREBASE_APP_ID = ""
+FIREBASE_PROJECT_ID = ""
+FIREBASE_CLIENT_EMAIL = ""
+FIREBASE_PRIVATE_KEY = ""
+GOOGLE_DRIVE_CLIENT_ID = ""
+GOOGLE_DRIVE_CLIENT_SECRET = ""
+GOOGLE_DRIVE_REDIRECT_URI = ""
+NEXT_PUBLIC_GOOGLE_DRIVE_API_KEY = ""
+NEXT_PUBLIC_GOOGLE_DRIVE_APP_ID = ""
+OPENAI_API_KEY = ""
+
+[userenv.development]

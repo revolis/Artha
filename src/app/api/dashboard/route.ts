@@ -1,0 +1,30 @@
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
+import { getAvailableYears, getDashboardYearData } from "@/lib/firebase/queries";
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const yearParam = searchParams.get("year");
+  const year = yearParam ? Number(yearParam) : new Date().getUTCFullYear();
+
+  const { client: db } = createFirebaseRouteClient();
+  const user = await getAuthenticatedUser(request);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const years = await getAvailableYears(db, user.id);
+    const selectedYear = Number.isFinite(year) ? year : new Date().getUTCFullYear();
+    const dashboard = await getDashboardYearData(db, user.id, selectedYear);
+
+    return NextResponse.json({ years, dashboard });
+  } catch (err) {
+    console.error("Dashboard error:", err);
+    return NextResponse.json({ error: "Failed to load dashboard" }, { status: 500 });
+  }
+}
+
+
