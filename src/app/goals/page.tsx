@@ -2,7 +2,11 @@
 
 import * as React from "react";
 
+<<<<<<< HEAD
 import { fetchWithAuth } from "@/lib/firebase/browser";
+=======
+import { fetchWithAuth } from "@/lib/supabase/browser";
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -392,4 +396,7 @@ export default function GoalsPage() {
     </div>
   );
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

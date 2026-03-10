@@ -2,7 +2,11 @@
 
 import * as React from "react";
 
+<<<<<<< HEAD
 import { fetchWithAuth } from "@/lib/firebase/browser";
+=======
+import { fetchWithAuth } from "@/lib/supabase/browser";
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 import { PageHeader } from "@/components/page-header";
 import { ChartCard } from "@/components/chart-card";
 import { PortfolioAreaChart } from "@/components/charts/portfolio-area-chart";
@@ -108,4 +112,7 @@ export default function PortfolioPage() {
     </div>
   );
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

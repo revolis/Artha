@@ -11,12 +11,20 @@
 - Trading details shown only for Trading category
 - Reports export: CSV and JSON backups
 - Shareable reports with enable/disable and hide notes/sources toggles
+<<<<<<< HEAD
 - AI insights chat: numbers + notes only, no attachments
+=======
+- Gemini insights chat: numbers + notes only, no attachments
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 
 ## Non-Functional Requirements
 - Cloud persistence only; no business data in localStorage/IndexedDB
 - In-memory cache allowed and cleared on refresh
+<<<<<<< HEAD
 - Secrets stored server-side; access via API routes
+=======
+- Secrets stored server-side; access via Edge Functions
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 - Data model and auth should be multi-user ready
 
 ## Currency and FX Rules
@@ -31,7 +39,11 @@
 
 ## Integrations
 - Google Drive: upload originals; keep forever; store file IDs
+<<<<<<< HEAD
 - OpenAI: API route only; context limited to numbers + notes
+=======
+- Gemini: Edge Function only; context limited to numbers + notes
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 - FX provider: none for now (manual rate only)
 
 ## Acceptance Tests (High Level)
@@ -42,4 +54,8 @@
 - Trading details appear only for Trading category
 - Heatmap net P/L auto-scales intensity
 - Exports generate correct CSV/JSON; share link respects settings
+<<<<<<< HEAD
 - AI insights chat never includes attachment content
+=======
+- Gemini chat never includes attachment content
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

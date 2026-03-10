@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+<<<<<<< HEAD
 import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
+=======
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 
 type DriveFilePayload = {
   id: string;
@@ -13,7 +17,11 @@ type DriveFilePayload = {
 };
 
 export async function POST(request: NextRequest) {
+<<<<<<< HEAD
   const { client: db } = createFirebaseRouteClient();
+=======
+  const { client: supabase } = createSupabaseRouteClient();
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -28,6 +36,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing entry_id or files" }, { status: 400 });
   }
 
+<<<<<<< HEAD
   const { data: entry } = await db
     .from("entries")
     .select("id")
@@ -43,6 +52,11 @@ export async function POST(request: NextRequest) {
     .filter((file) => file.id && file.name)
     .map((file) => ({
       user_id: user.id,
+=======
+  const payload = files
+    .filter((file) => file.id && file.name)
+    .map((file) => ({
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
       entry_id: entryId,
       drive_file_id: file.id,
       file_name: file.name,
@@ -54,7 +68,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "No valid files" }, { status: 400 });
   }
 
+<<<<<<< HEAD
   const { data: attachments, error: insertError } = await db
+=======
+  const { data: attachments, error: insertError } = await supabase
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     .from("attachments")
     .insert(payload)
     .select()
@@ -66,5 +84,8 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ attachments: attachments ?? [] });
 }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

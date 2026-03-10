@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+<<<<<<< HEAD
 import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
 import { getAvailableYears, getYearDateRange } from "@/lib/firebase/queries";
+=======
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+import { getAvailableYears, getYearDateRange } from "@/lib/supabase/queries";
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 
 type EntryRow = {
   entry_date: string;
@@ -47,7 +52,11 @@ function buildSnapshotsFromEntries(entries: EntryRow[]) {
 }
 
 export async function GET(request: NextRequest) {
+<<<<<<< HEAD
   const { client: db } = createFirebaseRouteClient();
+=======
+  const { client: supabase } = createSupabaseRouteClient();
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -61,13 +70,21 @@ export async function GET(request: NextRequest) {
   const { start, end } = getYearDateRange(year);
   const getYearsSafe = async () => {
     try {
+<<<<<<< HEAD
       return await getAvailableYears(db, user.id);
+=======
+      return await getAvailableYears(supabase, user.id);
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     } catch (err) {
       return [year];
     }
   };
 
+<<<<<<< HEAD
   const { data: snapshots, error: snapshotError } = await db
+=======
+  const { data: snapshots, error: snapshotError } = await supabase
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     .from("portfolio_snapshots")
     .select("snapshot_date, total_value_usd")
     .eq("user_id", user.id)
@@ -79,7 +96,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Failed to load snapshots" }, { status: 500 });
   }
 
+<<<<<<< HEAD
   const { data: entries, error: entriesError } = await db
+=======
+  const { data: entries, error: entriesError } = await supabase
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     .from("entries")
     .select("entry_date, entry_type, amount_usd_base")
     .eq("user_id", user.id)
@@ -98,12 +119,20 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ snapshots: snapshots ?? [], years });
   }
 
+<<<<<<< HEAD
   const upsertPayload = derived.map((snapshot: SnapshotRow) => ({
+=======
+  const upsertPayload = derived.map((snapshot) => ({
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     ...snapshot,
     user_id: user.id
   }));
 
+<<<<<<< HEAD
   const { data: upserted } = await db
+=======
+  const { data: upserted } = await supabase
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     .from("portfolio_snapshots")
     .upsert(upsertPayload, { onConflict: "user_id,snapshot_date" })
     .select("snapshot_date, total_value_usd")
@@ -112,5 +141,8 @@ export async function GET(request: NextRequest) {
   const years = await getYearsSafe();
   return NextResponse.json({ snapshots: upserted ?? derived, years });
 }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

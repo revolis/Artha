@@ -16,7 +16,11 @@ import {
   Edit3
 } from "lucide-react";
 
+<<<<<<< HEAD
 import { fetchWithAuth } from "@/lib/firebase/browser";
+=======
+import { fetchWithAuth } from "@/lib/supabase/browser";
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 import { MaskedValue } from "@/components/masked-value";
 import { YearSwitcher } from "@/components/year-switcher";
 import { YearDeleteDialog } from "@/components/year-delete-dialog";
@@ -538,4 +542,7 @@ function EntriesContent() {
     </div>
   );
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

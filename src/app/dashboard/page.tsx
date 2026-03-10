@@ -2,7 +2,11 @@
 
 import * as React from "react";
 import Link from "next/link";
+<<<<<<< HEAD
 import { fetchWithAuth } from "@/lib/firebase/browser";
+=======
+import { fetchWithAuth } from "@/lib/supabase/browser";
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 
 import { YearSwitcher } from "@/components/year-switcher";
 import { YearDeleteDialog } from "@/components/year-delete-dialog";
@@ -23,7 +27,11 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CurrencyDisplay } from "@/components/currency-display";
+<<<<<<< HEAD
 import type { DashboardYearData, NetSeriesKey } from "@/lib/firebase/queries";
+=======
+import type { DashboardYearData, NetSeriesKey } from "@/lib/supabase/queries";
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 
 const rangeOptions: { label: string; value: NetSeriesKey }[] = [
   { label: "Monthly", value: "monthly" },
@@ -339,4 +347,7 @@ export default function DashboardPage() {
     </div>
   );
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

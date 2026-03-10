@@ -22,7 +22,11 @@ import {
   X
 } from "lucide-react";
 
+<<<<<<< HEAD
 import { fetchWithAuth } from "@/lib/firebase/browser";
+=======
+import { fetchWithAuth } from "@/lib/supabase/browser";
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { usePrivateMode } from "@/components/private-mode-provider";
@@ -165,4 +169,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

@@ -1,21 +1,31 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+<<<<<<< HEAD
 import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
 import { firebaseAdminDb } from "@/lib/firebase/admin-db";
+=======
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+import { supabaseServer } from "@/lib/supabase/server";
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 import { getDriveAccessToken } from "@/lib/drive/oauth";
 
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: { entryId: string; attachmentId: string } }
 ) {
+<<<<<<< HEAD
   const { client: db } = createFirebaseRouteClient();
+=======
+  const { client: supabase } = createSupabaseRouteClient();
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
   const user = await getAuthenticatedUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+<<<<<<< HEAD
   const { data: entry, error: entryError } = await db
     .from("entries")
     .select("id")
@@ -28,6 +38,9 @@ export async function DELETE(
   }
 
   const { data: attachment, error: attachmentError } = await db
+=======
+  const { data: attachment, error: attachmentError } = await supabase
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     .from("attachments")
     .select("drive_file_id")
     .eq("id", params.attachmentId)
@@ -38,7 +51,11 @@ export async function DELETE(
     return NextResponse.json({ error: "Attachment not found" }, { status: 404 });
   }
 
+<<<<<<< HEAD
   const { data: tokenRow } = await firebaseAdminDb
+=======
+  const { data: tokenRow } = await supabaseServer
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     .from("drive_tokens")
     .select("refresh_token")
     .eq("user_id", user.id)
@@ -65,7 +82,11 @@ export async function DELETE(
     return NextResponse.json({ error: "Failed to delete Drive file" }, { status: 500 });
   }
 
+<<<<<<< HEAD
   const { error: deleteError } = await db
+=======
+  const { error: deleteError } = await supabase
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     .from("attachments")
     .delete()
     .eq("id", params.attachmentId)
@@ -77,5 +98,8 @@ export async function DELETE(
 
   return NextResponse.json({ ok: true });
 }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

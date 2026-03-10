@@ -10,6 +10,7 @@ const config: Config = {
         foreground: "var(--foreground)",
         card: "var(--card)",
         cardForeground: "var(--card-foreground)",
+<<<<<<< HEAD
         "card-foreground": "var(--card-foreground)",
         muted: "var(--muted)",
         mutedForeground: "var(--muted-foreground)",
@@ -17,6 +18,12 @@ const config: Config = {
         accent: "var(--accent)",
         accentForeground: "var(--accent-foreground)",
         "accent-foreground": "var(--accent-foreground)",
+=======
+        muted: "var(--muted)",
+        mutedForeground: "var(--muted-foreground)",
+        accent: "var(--accent)",
+        accentForeground: "var(--accent-foreground)",
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
         border: "var(--border)",
         ring: "var(--ring)",
         positive: "var(--positive)",

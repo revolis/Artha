@@ -1,13 +1,21 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+<<<<<<< HEAD
 import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
+=======
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 
 export async function PUT(
   request: NextRequest,
   { params }: { params: { categoryId: string } }
 ) {
+<<<<<<< HEAD
   const { client: db } = createFirebaseRouteClient();
+=======
+  const { client: supabase } = createSupabaseRouteClient();
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -19,7 +27,11 @@ export async function PUT(
     return NextResponse.json({ error: "Missing category name" }, { status: 400 });
   }
 
+<<<<<<< HEAD
   const { data: category, error: categoryError } = await db
+=======
+  const { data: category, error: categoryError } = await supabase
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     .from("categories")
     .select("id, type")
     .eq("id", params.categoryId)
@@ -34,7 +46,11 @@ export async function PUT(
     return NextResponse.json({ error: "System categories cannot be edited" }, { status: 400 });
   }
 
+<<<<<<< HEAD
   const { data: updated, error: updateError } = await db
+=======
+  const { data: updated, error: updateError } = await supabase
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     .from("categories")
     .update({ name: body.name })
     .eq("id", params.categoryId)
@@ -53,14 +69,22 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: { categoryId: string } }
 ) {
+<<<<<<< HEAD
   const { client: db } = createFirebaseRouteClient();
+=======
+  const { client: supabase } = createSupabaseRouteClient();
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
   const user = await getAuthenticatedUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+<<<<<<< HEAD
   const { data: category, error: categoryError } = await db
+=======
+  const { data: category, error: categoryError } = await supabase
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     .from("categories")
     .select("id, type")
     .eq("id", params.categoryId)
@@ -75,6 +99,7 @@ export async function DELETE(
     return NextResponse.json({ error: "System categories cannot be deleted" }, { status: 400 });
   }
 
+<<<<<<< HEAD
   const { data: linkedEntries, error: linkedEntriesError } = await db
     .from("entries")
     .select("id")
@@ -94,6 +119,9 @@ export async function DELETE(
   }
 
   const { error: deleteError } = await db
+=======
+  const { error: deleteError } = await supabase
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     .from("categories")
     .delete()
     .eq("id", params.categoryId)
@@ -105,5 +133,8 @@ export async function DELETE(
 
   return NextResponse.json({ ok: true });
 }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

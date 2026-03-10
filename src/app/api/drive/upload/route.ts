@@ -2,12 +2,21 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { randomUUID } from "crypto";
 
+<<<<<<< HEAD
 import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
 import { firebaseAdminDb } from "@/lib/firebase/admin-db";
 import { getDriveAccessToken } from "@/lib/drive/oauth";
 
 export async function POST(request: NextRequest) {
   const { client: db } = createFirebaseRouteClient();
+=======
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+import { supabaseServer } from "@/lib/supabase/server";
+import { getDriveAccessToken } from "@/lib/drive/oauth";
+
+export async function POST(request: NextRequest) {
+  const { client: supabase } = createSupabaseRouteClient();
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -22,6 +31,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing file or entry_id" }, { status: 400 });
   }
 
+<<<<<<< HEAD
   const { data: entry, error: entryError } = await db
     .from("entries")
     .select("id")
@@ -34,6 +44,9 @@ export async function POST(request: NextRequest) {
   }
 
   const { data: tokenRow } = await firebaseAdminDb
+=======
+  const { data: tokenRow } = await supabaseServer
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     .from("drive_tokens")
     .select("refresh_token")
     .eq("user_id", user.id)
@@ -78,10 +91,16 @@ export async function POST(request: NextRequest) {
 
     const driveFile = await uploadResponse.json();
 
+<<<<<<< HEAD
     const { data: attachment, error: attachmentError } = await db
       .from("attachments")
       .insert({
         user_id: user.id,
+=======
+    const { data: attachment, error: attachmentError } = await supabase
+      .from("attachments")
+      .insert({
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
         entry_id: entryId,
         drive_file_id: driveFile.id,
         file_name: driveFile.name,
@@ -100,5 +119,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: err instanceof Error ? err.message : "Upload failed" }, { status: 500 });
   }
 }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

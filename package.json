@@ -19,11 +19,19 @@
     "@radix-ui/react-switch": "^1.1.1",
     "@radix-ui/react-tabs": "^1.1.1",
     "@radix-ui/react-tooltip": "^1.1.3",
+<<<<<<< HEAD
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "firebase": "^12.10.0",
     "firebase-admin": "^13.7.0",
+=======
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.45.4",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "date-fns": "^3.6.0",
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     "googleapis": "^170.0.0",
     "lucide-react": "^0.469.0",
     "next": "14.2.5",

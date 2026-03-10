@@ -2,8 +2,13 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 
+<<<<<<< HEAD
 import { getAuthenticatedUser } from "@/lib/firebase/route";
 import { firebaseAdminDb } from "@/lib/firebase/admin-db";
+=======
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+import { supabaseServer } from "@/lib/supabase/server";
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -20,6 +25,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Invalid OAuth state" }, { status: 400 });
   }
 
+<<<<<<< HEAD
+=======
+  const { client: supabase } = createSupabaseRouteClient();
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
   const user = await getAuthenticatedUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -52,7 +61,11 @@ export async function GET(request: NextRequest) {
 
   let refreshToken = tokenPayload.refresh_token as string | undefined;
   if (!refreshToken) {
+<<<<<<< HEAD
     const { data: existingToken } = await firebaseAdminDb
+=======
+    const { data: existingToken } = await supabaseServer
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
       .from("drive_tokens")
       .select("refresh_token")
       .eq("user_id", user.id)
@@ -65,7 +78,11 @@ export async function GET(request: NextRequest) {
     refreshToken = existingToken.refresh_token;
   }
 
+<<<<<<< HEAD
   await firebaseAdminDb
+=======
+  await supabaseServer
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     .from("drive_tokens")
     .upsert({ user_id: user.id, refresh_token: refreshToken });
 
@@ -73,5 +90,8 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.redirect(new URL("/entries?drive=connected", request.url));
 }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

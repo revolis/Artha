@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useEffect, useContext, createContext } from "react";
+<<<<<<< HEAD
 import { fetchWithAuth } from "@/lib/firebase/browser";
+=======
+import { fetchWithAuth } from "@/lib/supabase/browser";
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 
 type Settings = {
     display_currency_mode: "usd" | "npr" | "both";
@@ -70,4 +74,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 }
 
 export const useSettings = () => useContext(SettingsContext);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

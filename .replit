@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 modules = ["nodejs-20", "web"]
+=======
+modules = ["nodejs-20", "web", "postgresql-16"]
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 [agent]
 expertMode = true
 
@@ -42,6 +46,7 @@ build = ["npm", "run", "build"]
 [userenv]
 
 [userenv.shared]
+<<<<<<< HEAD
 NEXT_PUBLIC_FIREBASE_API_KEY = ""
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN = ""
 NEXT_PUBLIC_FIREBASE_PROJECT_ID = ""
@@ -55,5 +60,14 @@ GOOGLE_DRIVE_REDIRECT_URI = ""
 NEXT_PUBLIC_GOOGLE_DRIVE_API_KEY = ""
 NEXT_PUBLIC_GOOGLE_DRIVE_APP_ID = ""
 OPENAI_API_KEY = ""
+=======
+NEXT_PUBLIC_SUPABASE_URL = "https://tvrxhwilychzqinovoiq.supabase.co"
+SUPABASE_URL = "https://tvrxhwilychzqinovoiq.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2cnhod2lseWNoenFpbm92b2lxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyOTAyMDUsImV4cCI6MjA4Mzg2NjIwNX0.a8Fb_HvO3SG7l9ms_M2ClGTN5OeIt5ou4HzCvnWzph0"
+GOOGLE_DRIVE_REDIRECT_URI = "https://artha1.vercel.app/api/auth/callback/google"
+NEXT_PUBLIC_GOOGLE_DRIVE_APP_ID = "721802200710"
+NEXT_PUBLIC_GOOGLE_DRIVE_API_KEY = "AIzaSyD2hI9HahlN0fk9ujd9UK_Ou34q1ZGWM9Q"
+GOOGLE_DRIVE_CLIENT_ID = "721802200710-6rcmjrd8caomeis6i3pq1dr6qk2f0m2o.apps.googleusercontent.com"
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 
 [userenv.development]

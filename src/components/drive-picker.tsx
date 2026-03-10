@@ -2,7 +2,11 @@
 
 import * as React from "react";
 
+<<<<<<< HEAD
 import { fetchWithAuth } from "@/lib/firebase/browser";
+=======
+import { fetchWithAuth } from "@/lib/supabase/browser";
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 import { Button } from "@/components/ui/button";
 
 declare global {
@@ -140,4 +144,7 @@ export function DrivePicker({ entryId, onAttached, onError }: DrivePickerProps) 
     </Button>
   );
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

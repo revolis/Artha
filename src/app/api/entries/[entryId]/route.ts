@@ -1,22 +1,35 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+<<<<<<< HEAD
 import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
 import { firebaseAdminDb } from "@/lib/firebase/admin-db";
+=======
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+import { supabaseServer } from "@/lib/supabase/server";
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 import { getDriveAccessToken } from "@/lib/drive/oauth";
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: { entryId: string } }
 ) {
+<<<<<<< HEAD
   const { client: db } = createFirebaseRouteClient();
+=======
+  const { client: supabase } = createSupabaseRouteClient();
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
   const user = await getAuthenticatedUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+<<<<<<< HEAD
   const { data: entry, error: entryError } = await db
+=======
+  const { data: entry, error: entryError } = await supabase
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     .from("entries")
     .select(
       "id, entry_date, entry_type, amount_usd_base, currency_original, amount_original, fx_rate_used, notes, category_id, source_id, entry_tags(tag_id)"
@@ -36,7 +49,11 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { entryId: string } }
 ) {
+<<<<<<< HEAD
   const { client: db } = createFirebaseRouteClient();
+=======
+  const { client: supabase } = createSupabaseRouteClient();
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -65,7 +82,11 @@ export async function PUT(
     notes: body.notes || null
   };
 
+<<<<<<< HEAD
   const { data: updated, error: updateError } = await db
+=======
+  const { data: updated, error: updateError } = await supabase
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     .from("entries")
     .update(payload)
     .eq("id", params.entryId)
@@ -74,27 +95,42 @@ export async function PUT(
     .single();
 
   if (updateError) {
+<<<<<<< HEAD
     if (updateError.code === "PGRST116") {
       return NextResponse.json({ error: "Entry not found" }, { status: 404 });
     }
 
+=======
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     return NextResponse.json({ error: "Failed to update entry" }, { status: 500 });
   }
 
   if (Array.isArray(body.tag_ids)) {
     const tagIds = Array.from(new Set(body.tag_ids.filter((id: unknown) => typeof id === "string")));
 
+<<<<<<< HEAD
     const { data: tags } = await db
+=======
+    const { data: tags } = await supabase
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
       .from("tags")
       .select("id")
       .eq("user_id", user.id)
       .in("id", tagIds);
 
+<<<<<<< HEAD
     const validTagIds = (tags ?? []).map((tag: { id: string }) => tag.id);
     await db.from("entry_tags").delete().eq("entry_id", params.entryId);
     if (validTagIds.length > 0) {
       await db.from("entry_tags").insert(
         validTagIds.map((tagId: string) => ({
+=======
+    const validTagIds = (tags ?? []).map((tag) => tag.id);
+    await supabase.from("entry_tags").delete().eq("entry_id", params.entryId);
+    if (validTagIds.length > 0) {
+      await supabase.from("entry_tags").insert(
+        validTagIds.map((tagId) => ({
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
           entry_id: params.entryId,
           tag_id: tagId
         }))
@@ -109,13 +145,18 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: { entryId: string } }
 ) {
+<<<<<<< HEAD
   const { client: db } = createFirebaseRouteClient();
+=======
+  const { client: supabase } = createSupabaseRouteClient();
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
   const user = await getAuthenticatedUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+<<<<<<< HEAD
   const { data: entry, error: entryError } = await db
     .from("entries")
     .select("id")
@@ -160,6 +201,14 @@ export async function DELETE(
   }
 
   const { error: deleteError } = await db
+=======
+  const { data: attachments } = await supabase
+    .from("attachments")
+    .select("drive_file_id")
+    .eq("entry_id", params.entryId);
+
+  const { error: deleteError } = await supabase
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     .from("entries")
     .delete()
     .eq("id", params.entryId)
@@ -170,12 +219,20 @@ export async function DELETE(
   }
 
   const driveFileIds = (attachments ?? [])
+<<<<<<< HEAD
     .map((attachment: { drive_file_id?: string | null }) => attachment.drive_file_id)
+=======
+    .map((attachment) => attachment.drive_file_id)
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     .filter(Boolean) as string[];
 
   const storageErrors: string[] = [];
   if (driveFileIds.length > 0) {
+<<<<<<< HEAD
     const { data: tokenRow } = await firebaseAdminDb
+=======
+    const { data: tokenRow } = await supabaseServer
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
       .from("drive_tokens")
       .select("refresh_token")
       .eq("user_id", user.id)
@@ -203,5 +260,8 @@ export async function DELETE(
 
   return NextResponse.json({ ok: true, storageErrors });
 }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

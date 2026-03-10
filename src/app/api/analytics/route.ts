@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
+<<<<<<< HEAD
 import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
 import { getAnalyticsData, Period } from "@/lib/firebase/analytics-queries";
 
 export async function GET(request: NextRequest) {
     const { client: db } = createFirebaseRouteClient();
+=======
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+import { getAnalyticsData, Period } from "@/lib/supabase/analytics-queries";
+
+export async function GET(request: NextRequest) {
+    const { client: supabase } = createSupabaseRouteClient();
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     const user = await getAuthenticatedUser();
 
     if (!user) {
@@ -18,7 +26,11 @@ export async function GET(request: NextRequest) {
 
     try {
         const data = await getAnalyticsData(
+<<<<<<< HEAD
             db,
+=======
+            supabase,
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
             user.id,
             period,
             customStart,
@@ -31,5 +43,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: err.message || "Failed to fetch analytics" }, { status: 500 });
     }
 }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688

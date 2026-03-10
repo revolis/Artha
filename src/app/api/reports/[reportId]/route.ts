@@ -1,19 +1,31 @@
 import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
+<<<<<<< HEAD
 import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
+=======
+import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
 
 export async function GET(
     request: NextRequest,
     { params }: { params: { reportId: string } }
 ) {
+<<<<<<< HEAD
     const { client: db } = createFirebaseRouteClient();
+=======
+    const { client: supabase } = createSupabaseRouteClient();
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     const user = await getAuthenticatedUser();
 
     if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+<<<<<<< HEAD
     const { data, error } = await db
+=======
+    const { data, error } = await supabase
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
         .from("reports")
         .select("*")
         .eq("id", params.reportId)
@@ -31,14 +43,22 @@ export async function DELETE(
     request: NextRequest,
     { params }: { params: { reportId: string } }
 ) {
+<<<<<<< HEAD
     const { client: db } = createFirebaseRouteClient();
+=======
+    const { client: supabase } = createSupabaseRouteClient();
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     const user = await getAuthenticatedUser();
 
     if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+<<<<<<< HEAD
     const { error } = await db
+=======
+    const { error } = await supabase
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
         .from("reports")
         .delete()
         .eq("id", params.reportId)
@@ -55,7 +75,11 @@ export async function PATCH(
     request: NextRequest,
     { params }: { params: { reportId: string } }
 ) {
+<<<<<<< HEAD
     const { client: db } = createFirebaseRouteClient();
+=======
+    const { client: supabase } = createSupabaseRouteClient();
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
     const user = await getAuthenticatedUser();
 
     if (!user) {
@@ -80,7 +104,11 @@ export async function PATCH(
         updates.share_token = null;
     }
 
+<<<<<<< HEAD
     const { data, error } = await db
+=======
+    const { data, error } = await supabase
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
         .from("reports")
         .update(updates)
         .eq("id", params.reportId)
@@ -94,5 +122,8 @@ export async function PATCH(
 
     return NextResponse.json({ report: data });
 }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 31dff062059e19b9530ba2cc08afd4c17b9be688
