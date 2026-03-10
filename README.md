@@ -9,17 +9,17 @@ npm run dev
 ```
 
 ## Env setup
-Copy `.env.example` to `.env.local` and fill in Supabase + Google Drive + Gemini secrets.
+Copy `.env.example` to `.env.local` and fill in Firebase + Google Drive + OpenAI secrets.
 For Google Drive Picker, set `NEXT_PUBLIC_GOOGLE_DRIVE_API_KEY` and `NEXT_PUBLIC_GOOGLE_DRIVE_APP_ID`.
 
-## Supabase schema
-- Run `supabase/schema.sql` in the Supabase SQL editor.
-- Optional: run `supabase/seed.sql` once for system categories.
-  - Re-run `supabase/schema.sql` if you want Google Drive token storage (drive_tokens table).
+## Firebase setup
+- Configure Firebase Authentication (Email/Password).
+- Configure Firestore and ensure Admin SDK credentials are set in `.env.local`.
+- The app accesses Firestore through server API routes.
 
 ## Notes
-- All business data must stay in Supabase (no localStorage/IndexedDB).
+- All business data must stay in Firebase/Firestore (no localStorage/IndexedDB).
 - Private Mode masks numeric values across the UI.
 - Google Drive uploads must store file IDs only.
-- Supabase Auth is required; use the `/login` page for sign-in/sign-up.
+- Firebase Auth is required; use the `/login` page for sign-in/sign-up.
 - Portfolio snapshots are auto-derived from entries when no snapshots exist.

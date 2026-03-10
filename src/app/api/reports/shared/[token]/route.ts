@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
-import { supabaseServer } from "@/lib/supabase/server";
+import { firebaseAdminDb } from "@/lib/firebase/admin-db";
 
 export async function GET(
     request: NextRequest,
@@ -9,7 +9,7 @@ export async function GET(
     // Public route - use Service Role client to bypass RLS
     // We strictly filter by token and share_enabled=true
 
-    const { data: report, error } = await supabaseServer
+    const { data: report, error } = await firebaseAdminDb
         .from("reports")
         .select("*")
         .eq("share_token", params.token)
@@ -22,7 +22,7 @@ export async function GET(
 
     // Fetch the data for this report using the service client
     // Since we are trusted here (token verified), we fetch the user's entries
-    const { data: entries } = await supabaseServer
+    const { data: entries } = await firebaseAdminDb
         .from("entries")
         .select("*, categories(*)")
         .eq("user_id", report.user_id)
@@ -51,3 +51,4 @@ export async function GET(
         public: true
     });
 }
+

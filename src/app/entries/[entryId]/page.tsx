@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
-import { fetchWithAuth } from "@/lib/supabase/browser";
+import { fetchWithAuth } from "@/lib/firebase/browser";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { EntryForm, EntryFormData } from "@/components/entry-form";
@@ -112,3 +112,4 @@ export default function EditEntryPage() {
     </div>
   );
 }
+

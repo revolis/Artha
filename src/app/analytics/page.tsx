@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { format as formatDate } from "date-fns";
-import { fetchWithAuth } from "@/lib/supabase/browser";
+import { fetchWithAuth } from "@/lib/firebase/browser";
 import {
   BarChart3,
   Calendar,
@@ -657,3 +657,4 @@ function AnalyticsSkeleton() {
     </div>
   );
 }
+

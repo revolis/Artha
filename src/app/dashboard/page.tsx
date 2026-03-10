@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { fetchWithAuth } from "@/lib/supabase/browser";
+import { fetchWithAuth } from "@/lib/firebase/browser";
 
 import { YearSwitcher } from "@/components/year-switcher";
 import { YearDeleteDialog } from "@/components/year-delete-dialog";
@@ -23,7 +23,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CurrencyDisplay } from "@/components/currency-display";
-import type { DashboardYearData, NetSeriesKey } from "@/lib/supabase/queries";
+import type { DashboardYearData, NetSeriesKey } from "@/lib/firebase/queries";
 
 const rangeOptions: { label: string; value: NetSeriesKey }[] = [
   { label: "Monthly", value: "monthly" },
@@ -339,3 +339,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+

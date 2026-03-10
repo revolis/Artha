@@ -1,11 +1,13 @@
 "use client";
 
 import { LogOut } from "lucide-react";
+import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { createSupabaseBrowserClient, clearAuthToken } from "@/lib/supabase/browser";
+import { clearAuthToken } from "@/lib/firebase/browser";
+import { getFirebaseAuth } from "@/lib/firebase/client";
 
 function clearAllStorage() {
   const cookies = document.cookie.split(";");
@@ -21,7 +23,7 @@ function clearAllStorage() {
     
     const keys = Object.keys(window.localStorage);
     for (const key of keys) {
-      if (key.includes('supabase') || key.includes('sb-')) {
+      if (key.includes("firebase")) {
         window.localStorage.removeItem(key);
       }
     }
@@ -35,8 +37,7 @@ export function SignOutButton() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const supabase = createSupabaseBrowserClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const user = getFirebaseAuth().currentUser;
       if (user?.email) {
         setEmail(user.email);
       }
@@ -45,9 +46,9 @@ export function SignOutButton() {
   }, []);
 
   const handleSignOut = async () => {
-    const supabase = createSupabaseBrowserClient();
-    await supabase.auth.signOut();
+    await signOut(getFirebaseAuth());
     clearAllStorage();
+    document.cookie = "artha_auth=; Path=/; Max-Age=0; SameSite=Lax";
     router.replace("/login");
     router.refresh();
   };

@@ -1,6 +1,6 @@
 # Data Model
 
-Base: Supabase Postgres. All data persisted in cloud DB.
+Base: Firebase/Firestore. All data persisted in cloud DB.
 
 ## User
 - id (uuid, pk)

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { format } from "date-fns";
-import { fetchWithAuth } from "@/lib/supabase/browser";
+import { fetchWithAuth } from "@/lib/firebase/browser";
 import {
     Download,
     Share2,
@@ -285,3 +285,4 @@ function ShareDialog({
         </Dialog>
     )
 }
+

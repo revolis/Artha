@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Plus } from "lucide-react";
 
-import { fetchWithAuth } from "@/lib/supabase/browser";
+import { fetchWithAuth } from "@/lib/firebase/browser";
 import { Button } from "@/components/ui/button";
 import { CreateReportDialog } from "@/components/reports/create-report-dialog";
 import { ReportList } from "@/components/reports/report-list";
@@ -61,3 +61,4 @@ export default function ReportsPage() {
     </div>
   );
 }
+

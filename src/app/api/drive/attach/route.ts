@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
 
 type DriveFilePayload = {
   id: string;
@@ -13,7 +13,7 @@ type DriveFilePayload = {
 };
 
 export async function POST(request: NextRequest) {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "No valid files" }, { status: 400 });
   }
 
-  const { data: attachments, error: insertError } = await supabase
+  const { data: attachments, error: insertError } = await db
     .from("attachments")
     .insert(payload)
     .select()
@@ -54,3 +54,5 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ attachments: attachments ?? [] });
 }
+
+

@@ -7,8 +7,8 @@ import { HeatmapGrid } from "@/components/heatmap-grid";
 import { YearSwitcher } from "@/components/year-switcher";
 import { ChartCard } from "@/components/chart-card";
 import { YearDeleteDialog } from "@/components/year-delete-dialog";
-import { fetchWithAuth } from "@/lib/supabase/browser";
-import type { HeatmapDay } from "@/lib/supabase/queries";
+import { fetchWithAuth } from "@/lib/firebase/browser";
+import type { HeatmapDay } from "@/lib/firebase/queries";
 
 export default function HeatmapPage() {
   const currentYear = new Date().getUTCFullYear();
@@ -122,3 +122,4 @@ export default function HeatmapPage() {
     </div>
   );
 }
+

@@ -17,7 +17,7 @@ import {
   LineChart
 } from "lucide-react";
 
-import { fetchWithAuth } from "@/lib/supabase/browser";
+import { fetchWithAuth } from "@/lib/firebase/browser";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -441,3 +441,4 @@ function renderBoldText(text: string) {
     return part;
   });
 }
+

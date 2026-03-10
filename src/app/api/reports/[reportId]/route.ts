@@ -1,19 +1,19 @@
 import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
 
 export async function GET(
     request: NextRequest,
     { params }: { params: { reportId: string } }
 ) {
-    const { client: supabase } = createSupabaseRouteClient();
+    const { client: db } = createFirebaseRouteClient();
     const user = await getAuthenticatedUser();
 
     if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await db
         .from("reports")
         .select("*")
         .eq("id", params.reportId)
@@ -31,14 +31,14 @@ export async function DELETE(
     request: NextRequest,
     { params }: { params: { reportId: string } }
 ) {
-    const { client: supabase } = createSupabaseRouteClient();
+    const { client: db } = createFirebaseRouteClient();
     const user = await getAuthenticatedUser();
 
     if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { error } = await supabase
+    const { error } = await db
         .from("reports")
         .delete()
         .eq("id", params.reportId)
@@ -55,7 +55,7 @@ export async function PATCH(
     request: NextRequest,
     { params }: { params: { reportId: string } }
 ) {
-    const { client: supabase } = createSupabaseRouteClient();
+    const { client: db } = createFirebaseRouteClient();
     const user = await getAuthenticatedUser();
 
     if (!user) {
@@ -80,7 +80,7 @@ export async function PATCH(
         updates.share_token = null;
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await db
         .from("reports")
         .update(updates)
         .eq("id", params.reportId)
@@ -94,3 +94,5 @@ export async function PATCH(
 
     return NextResponse.json({ report: data });
 }
+
+

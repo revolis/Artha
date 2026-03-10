@@ -1,20 +1,20 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
 
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: { tagId: string } }
 ) {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { error: deleteError } = await supabase
+  const { error: deleteError } = await db
     .from("tags")
     .delete()
     .eq("id", params.tagId)
@@ -26,3 +26,5 @@ export async function DELETE(
 
   return NextResponse.json({ ok: true });
 }
+
+

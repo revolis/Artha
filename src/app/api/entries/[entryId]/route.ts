@@ -1,22 +1,22 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
-import { supabaseServer } from "@/lib/supabase/server";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
+import { firebaseAdminDb } from "@/lib/firebase/admin-db";
 import { getDriveAccessToken } from "@/lib/drive/oauth";
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: { entryId: string } }
 ) {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: entry, error: entryError } = await supabase
+  const { data: entry, error: entryError } = await db
     .from("entries")
     .select(
       "id, entry_date, entry_type, amount_usd_base, currency_original, amount_original, fx_rate_used, notes, category_id, source_id, entry_tags(tag_id)"
@@ -36,7 +36,7 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { entryId: string } }
 ) {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -65,7 +65,7 @@ export async function PUT(
     notes: body.notes || null
   };
 
-  const { data: updated, error: updateError } = await supabase
+  const { data: updated, error: updateError } = await db
     .from("entries")
     .update(payload)
     .eq("id", params.entryId)
@@ -80,17 +80,17 @@ export async function PUT(
   if (Array.isArray(body.tag_ids)) {
     const tagIds = Array.from(new Set(body.tag_ids.filter((id: unknown) => typeof id === "string")));
 
-    const { data: tags } = await supabase
+    const { data: tags } = await db
       .from("tags")
       .select("id")
       .eq("user_id", user.id)
       .in("id", tagIds);
 
-    const validTagIds = (tags ?? []).map((tag) => tag.id);
-    await supabase.from("entry_tags").delete().eq("entry_id", params.entryId);
+    const validTagIds = (tags ?? []).map((tag: { id: string }) => tag.id);
+    await db.from("entry_tags").delete().eq("entry_id", params.entryId);
     if (validTagIds.length > 0) {
-      await supabase.from("entry_tags").insert(
-        validTagIds.map((tagId) => ({
+      await db.from("entry_tags").insert(
+        validTagIds.map((tagId: string) => ({
           entry_id: params.entryId,
           tag_id: tagId
         }))
@@ -105,19 +105,19 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: { entryId: string } }
 ) {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: attachments } = await supabase
+  const { data: attachments } = await db
     .from("attachments")
     .select("drive_file_id")
     .eq("entry_id", params.entryId);
 
-  const { error: deleteError } = await supabase
+  const { error: deleteError } = await db
     .from("entries")
     .delete()
     .eq("id", params.entryId)
@@ -128,12 +128,12 @@ export async function DELETE(
   }
 
   const driveFileIds = (attachments ?? [])
-    .map((attachment) => attachment.drive_file_id)
+    .map((attachment: { drive_file_id?: string | null }) => attachment.drive_file_id)
     .filter(Boolean) as string[];
 
   const storageErrors: string[] = [];
   if (driveFileIds.length > 0) {
-    const { data: tokenRow } = await supabaseServer
+    const { data: tokenRow } = await firebaseAdminDb
       .from("drive_tokens")
       .select("refresh_token")
       .eq("user_id", user.id)
@@ -161,3 +161,6 @@ export async function DELETE(
 
   return NextResponse.json({ ok: true, storageErrors });
 }
+
+
+

@@ -1,17 +1,17 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
 
 export async function GET() {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: categories, error: categoriesError } = await supabase
+  const { data: categories, error: categoriesError } = await db
     .from("categories")
     .select("id, name, type")
     .or(`user_id.eq.${user.id},user_id.is.null`)
@@ -25,7 +25,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing category name" }, { status: 400 });
   }
 
-  const { data: created, error: insertError } = await supabase
+  const { data: created, error: insertError } = await db
     .from("categories")
     .insert({
       user_id: user.id,
@@ -53,3 +53,5 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ category: created });
 }
+
+

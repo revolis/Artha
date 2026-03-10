@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { fetchWithAuth } from "@/lib/supabase/browser";
+import { fetchWithAuth } from "@/lib/firebase/browser";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -151,3 +151,4 @@ export function YearDeleteDialog({ year, open, onOpenChange, onDeleted }: YearDe
     />
   );
 }
+

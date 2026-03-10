@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
-import { supabaseServer } from "@/lib/supabase/server";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
+import { firebaseAdminDb } from "@/lib/firebase/admin-db";
 import { getDriveAccessToken } from "@/lib/drive/oauth";
 
 // GET /api/drive/[fileId] - Get file metadata/view link
@@ -9,7 +9,7 @@ export async function GET(
     { params }: { params: { fileId: string } }
 ) {
     const fileId = params.fileId;
-    const { client: supabase } = createSupabaseRouteClient();
+    const { client: db } = createFirebaseRouteClient();
     const user = await getAuthenticatedUser();
 
     if (!user) {
@@ -17,7 +17,7 @@ export async function GET(
     }
 
     // Get refresh token
-    const { data: tokenRow } = await supabaseServer
+    const { data: tokenRow } = await firebaseAdminDb
         .from("drive_tokens")
         .select("refresh_token")
         .eq("user_id", user.id)
@@ -57,7 +57,7 @@ export async function DELETE(
     { params }: { params: { fileId: string } }
 ) {
     const fileId = params.fileId;
-    const { client: supabase } = createSupabaseRouteClient();
+    const { client: db } = createFirebaseRouteClient();
     const user = await getAuthenticatedUser();
 
     if (!user) {
@@ -65,7 +65,7 @@ export async function DELETE(
     }
 
     // Get refresh token
-    const { data: tokenRow } = await supabaseServer
+    const { data: tokenRow } = await firebaseAdminDb
         .from("drive_tokens")
         .select("refresh_token")
         .eq("user_id", user.id)
@@ -92,8 +92,8 @@ export async function DELETE(
             return NextResponse.json({ error: "Failed to delete from Drive" }, { status: driveResponse.status });
         }
 
-        // 2. Delete from Supabase attachments
-        const { error: dbError } = await supabase
+        // 2. Delete from attachments collection
+        const { error: dbError } = await db
             .from("attachments")
             .delete()
             .eq("drive_file_id", fileId);
@@ -107,3 +107,7 @@ export async function DELETE(
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
+
+
+
+

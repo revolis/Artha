@@ -1,22 +1,22 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
-import { supabaseServer } from "@/lib/supabase/server";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
+import { firebaseAdminDb } from "@/lib/firebase/admin-db";
 import { getDriveAccessToken } from "@/lib/drive/oauth";
 
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: { entryId: string; attachmentId: string } }
 ) {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: attachment, error: attachmentError } = await supabase
+  const { data: attachment, error: attachmentError } = await db
     .from("attachments")
     .select("drive_file_id")
     .eq("id", params.attachmentId)
@@ -27,7 +27,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Attachment not found" }, { status: 404 });
   }
 
-  const { data: tokenRow } = await supabaseServer
+  const { data: tokenRow } = await firebaseAdminDb
     .from("drive_tokens")
     .select("refresh_token")
     .eq("user_id", user.id)
@@ -54,7 +54,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Failed to delete Drive file" }, { status: 500 });
   }
 
-  const { error: deleteError } = await supabase
+  const { error: deleteError } = await db
     .from("attachments")
     .delete()
     .eq("id", params.attachmentId)
@@ -66,3 +66,6 @@ export async function DELETE(
 
   return NextResponse.json({ ok: true });
 }
+
+
+

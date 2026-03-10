@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Download, Receipt, Calculator, Building2 } from "lucide-react";
 import { format } from "date-fns";
-import { fetchWithAuth } from "@/lib/supabase/browser";
+import { fetchWithAuth } from "@/lib/firebase/browser";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -237,3 +237,4 @@ export default function TaxFeesPage() {
     </div>
   );
 }
+

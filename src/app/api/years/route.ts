@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
-import { getAvailableYears } from "@/lib/supabase/queries";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
+import { getAvailableYears } from "@/lib/firebase/queries";
 
 export async function GET() {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -13,7 +13,7 @@ export async function GET() {
   }
 
   try {
-    const years = await getAvailableYears(supabase, user.id);
+    const years = await getAvailableYears(db, user.id);
     return NextResponse.json({ years });
   } catch (err) {
     return NextResponse.json({ error: "Failed to load years" }, { status: 500 });
@@ -21,7 +21,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid year" }, { status: 400 });
   }
 
-  const { error: insertError } = await supabase
+  const { error: insertError } = await db
     .from("financial_years")
     .upsert({ user_id: user.id, year }, { onConflict: "user_id,year" });
 
@@ -43,9 +43,11 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const years = await getAvailableYears(supabase, user.id);
+    const years = await getAvailableYears(db, user.id);
     return NextResponse.json({ years });
   } catch (err) {
     return NextResponse.json({ years: [year] });
   }
 }
+
+

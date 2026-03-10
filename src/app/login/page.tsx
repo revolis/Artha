@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import Link from "next/link";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { getFirebaseAuth } from "@/lib/firebase/client";
+
+function setAuthPresenceCookie(isAuthenticated: boolean) {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+
+  if (isAuthenticated) {
+    document.cookie = `artha_auth=1; Path=/; Max-Age=2592000; SameSite=Lax${secure}`;
+    return;
+  }
+
+  document.cookie = `artha_auth=; Path=/; Max-Age=0; SameSite=Lax${secure}`;
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,32 +43,22 @@ export default function LoginPage() {
     setMessage(null);
 
     try {
-      const supabase = createSupabaseBrowserClient();
+      const firebaseAuth = getFirebaseAuth();
       if (mode === "signin") {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
-        if (signInError) throw signInError;
+        await signInWithEmailAndPassword(firebaseAuth, email, password);
+        setAuthPresenceCookie(true);
         router.replace("/dashboard");
         router.refresh();
         return;
       }
 
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password
-      });
-      if (signUpError) throw signUpError;
-
-      if (data.session) {
-        router.replace("/dashboard");
-        router.refresh();
-      } else {
-        setMessage("Check your email to confirm your account.");
-      }
+      await createUserWithEmailAndPassword(firebaseAuth, email, password);
+      setAuthPresenceCookie(true);
+      router.replace("/dashboard");
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
+      setAuthPresenceCookie(false);
     } finally {
       setLoading(false);
     }

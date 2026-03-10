@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { fetchWithAuth } from "@/lib/supabase/browser";
+import { fetchWithAuth } from "@/lib/firebase/browser";
 import { PageHeader } from "@/components/page-header";
 import { ChartCard } from "@/components/chart-card";
 import { PortfolioAreaChart } from "@/components/charts/portfolio-area-chart";
@@ -108,3 +108,4 @@ export default function PortfolioPage() {
     </div>
   );
 }
+

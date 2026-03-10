@@ -1,14 +1,18 @@
 # Integrations
 
-## Supabase
-- Use Supabase Postgres + Auth + Edge Functions
-- All app data persisted in Supabase
+## Firebase
+- Use Firebase Auth for login/signup
+- Use Firestore (via server-side API routes) for all app data
 - No business data in browser storage
 
 Suggested env vars:
-- SUPABASE_URL
-- SUPABASE_ANON_KEY
-- SUPABASE_SERVICE_ROLE_KEY (server-only)
+- NEXT_PUBLIC_FIREBASE_API_KEY
+- NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+- NEXT_PUBLIC_FIREBASE_PROJECT_ID
+- NEXT_PUBLIC_FIREBASE_APP_ID
+- FIREBASE_PROJECT_ID
+- FIREBASE_CLIENT_EMAIL
+- FIREBASE_PRIVATE_KEY (server-only)
 
 ## Google Drive
 - OAuth 2.0 for Drive uploads + Google Picker
@@ -24,9 +28,9 @@ Suggested env vars:
 - NEXT_PUBLIC_GOOGLE_DRIVE_API_KEY
 - NEXT_PUBLIC_GOOGLE_DRIVE_APP_ID
 
-## Gemini
-- Use Supabase Edge Function to call Gemini
+## OpenAI
+- Use server-side API route to call OpenAI
 - Context: aggregated numbers + notes only
 
 Suggested env vars:
-- GEMINI_API_KEY
+- OPENAI_API_KEY

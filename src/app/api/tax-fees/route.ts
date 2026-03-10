@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
 import { startOfYear, endOfYear, format } from "date-fns";
 
 export async function GET(request: NextRequest) {
-    const { client: supabase } = createSupabaseRouteClient();
+    const { client: db } = createFirebaseRouteClient();
     const user = await getAuthenticatedUser();
 
     if (!user) {
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     try {
         // 1. Fetch Tax and Fee Entries
-        const { data: entries, error } = await supabase
+        const { data: entries, error } = await db
             .from("entries")
             .select(`
             *,
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
         const categoryMap: Record<string, { tax: number; fee: number }> = {};
         const exchangeMap: Record<string, { fee: number; count: number }> = {};
 
-        entries?.forEach(entry => {
+        entries?.forEach((entry: any) => {
             const amount = Number(entry.amount_usd_base);
             const catName = entry.categories?.name || "Uncategorized";
 
@@ -108,3 +108,5 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Failed to load tax & fees data" }, { status: 500 });
     }
 }
+
+

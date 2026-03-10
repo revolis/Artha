@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
-import { supabaseServer } from "@/lib/supabase/server";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
+import { firebaseAdminDb } from "@/lib/firebase/admin-db";
 import { getDriveAccessToken } from "@/lib/drive/oauth";
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: { year: string } }
 ) {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -26,18 +26,18 @@ export async function GET(
     const endDate = `${year}-12-31`;
 
     const [entriesData, goalsData, snapshotsData] = await Promise.all([
-      supabase
+      db
         .from("entries")
         .select("id")
         .eq("user_id", user.id)
         .gte("entry_date", startDate)
         .lte("entry_date", endDate),
-      supabase
+      db
         .from("goals")
         .select("id")
         .eq("user_id", user.id)
         .eq("year", year),
-      supabase
+      db
         .from("portfolio_snapshots")
         .select("id")
         .eq("user_id", user.id)
@@ -48,10 +48,10 @@ export async function GET(
     const entryIds = entriesData.data || [];
     let attachmentsCount = 0;
     if (entryIds.length > 0) {
-      const { data: attachments } = await supabase
+      const { data: attachments } = await db
         .from("attachments")
         .select("id")
-        .in("entry_id", entryIds.map(e => e.id));
+        .in("entry_id", entryIds.map((e: { id: string }) => e.id));
       attachmentsCount = attachments?.length || 0;
     }
 
@@ -78,7 +78,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const supabase = supabaseServer;
+  const db = firebaseAdminDb;
 
   const year = Number(params.year);
   if (!Number.isFinite(year)) {
@@ -89,7 +89,7 @@ export async function DELETE(
     const startDate = `${year}-01-01`;
     const endDate = `${year}-12-31`;
 
-    const { data: entryIds } = await supabase
+    const { data: entryIds } = await db
       .from("entries")
       .select("id")
       .eq("user_id", user.id)
@@ -100,19 +100,19 @@ export async function DELETE(
     let driveFileIds: string[] = [];
 
     if (entryIds && entryIds.length > 0) {
-      const ids = entryIds.map(e => e.id);
+      const ids = entryIds.map((e: { id: string }) => e.id);
 
-      const { data: attachments } = await supabase
+      const { data: attachments } = await db
         .from("attachments")
         .select("id, drive_file_id")
         .in("entry_id", ids);
 
       if (attachments) {
         driveFileIds = attachments
-          .filter(a => a.drive_file_id)
-          .map(a => a.drive_file_id as string);
+          .filter((a: { drive_file_id?: string | null }) => a.drive_file_id)
+          .map((a: { drive_file_id?: string | null }) => a.drive_file_id as string);
 
-        await supabase
+        await db
           .from("attachments")
           .delete()
           .in("entry_id", ids);
@@ -123,24 +123,24 @@ export async function DELETE(
     const entriesCount = entryIds?.length || 0;
     
     const [entriesResult, goalsResult, snapshotsResult, yearsResult] = await Promise.all([
-      supabase
+      db
         .from("entries")
         .delete()
         .eq("user_id", user.id)
         .gte("entry_date", startDate)
         .lte("entry_date", endDate),
-      supabase
+      db
         .from("goals")
         .delete()
         .eq("user_id", user.id)
         .eq("year", year),
-      supabase
+      db
         .from("portfolio_snapshots")
         .delete()
         .eq("user_id", user.id)
         .gte("snapshot_date", startDate)
         .lte("snapshot_date", endDate),
-      supabase
+      db
         .from("financial_years")
         .delete()
         .eq("user_id", user.id)
@@ -164,7 +164,7 @@ export async function DELETE(
     const storageErrors: string[] = [];
 
     if (driveFileIds.length > 0) {
-      const { data: tokenRow } = await supabaseServer
+      const { data: tokenRow } = await firebaseAdminDb
         .from("drive_tokens")
         .select("refresh_token")
         .eq("user_id", user.id)
@@ -205,3 +205,6 @@ export async function DELETE(
     return NextResponse.json({ error: "Failed to delete year" }, { status: 500 });
   }
 }
+
+
+

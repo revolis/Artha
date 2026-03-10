@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server";
 
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
-import { supabaseServer } from "@/lib/supabase/server";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
+import { firebaseAdminDb } from "@/lib/firebase/admin-db";
 import { getDriveAccessToken } from "@/lib/drive/oauth";
 
 export async function GET() {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: tokenRow } = await supabaseServer
+  const { data: tokenRow } = await firebaseAdminDb
     .from("drive_tokens")
     .select("refresh_token")
     .eq("user_id", user.id)
@@ -29,3 +29,6 @@ export async function GET() {
     return NextResponse.json({ error: "Failed to get access token" }, { status: 500 });
   }
 }
+
+
+

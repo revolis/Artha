@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { type NextRequest } from "next/server";
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
 
 export async function GET(
     request: NextRequest,
     { params }: { params: { reportId: string } }
 ) {
-    const { client: supabase } = createSupabaseRouteClient();
+    const { client: db } = createFirebaseRouteClient();
     const user = await getAuthenticatedUser();
 
     if (!user) {
@@ -14,7 +14,7 @@ export async function GET(
     }
 
     // Fetch report definition
-    const { data: report, error } = await supabase
+    const { data: report, error } = await db
         .from("reports")
         .select("*")
         .eq("id", params.reportId)
@@ -27,7 +27,7 @@ export async function GET(
 
     // Re-generate content
     // Note: Duplicated logic from POST /reports. Ideally refactor later into shared lib.
-    const { data: entries } = await supabase
+    const { data: entries } = await db
         .from("entries")
         .select("*, categories(name)")
         .eq("user_id", user.id)
@@ -71,3 +71,5 @@ export async function GET(
 
     return NextResponse.json({ error: "Unsupported format" }, { status: 400 });
 }
+
+

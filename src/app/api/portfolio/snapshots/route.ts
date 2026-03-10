@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
-import { getAvailableYears, getYearDateRange } from "@/lib/supabase/queries";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
+import { getAvailableYears, getYearDateRange } from "@/lib/firebase/queries";
 
 type EntryRow = {
   entry_date: string;
@@ -47,7 +47,7 @@ function buildSnapshotsFromEntries(entries: EntryRow[]) {
 }
 
 export async function GET(request: NextRequest) {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -61,13 +61,13 @@ export async function GET(request: NextRequest) {
   const { start, end } = getYearDateRange(year);
   const getYearsSafe = async () => {
     try {
-      return await getAvailableYears(supabase, user.id);
+      return await getAvailableYears(db, user.id);
     } catch (err) {
       return [year];
     }
   };
 
-  const { data: snapshots, error: snapshotError } = await supabase
+  const { data: snapshots, error: snapshotError } = await db
     .from("portfolio_snapshots")
     .select("snapshot_date, total_value_usd")
     .eq("user_id", user.id)
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Failed to load snapshots" }, { status: 500 });
   }
 
-  const { data: entries, error: entriesError } = await supabase
+  const { data: entries, error: entriesError } = await db
     .from("entries")
     .select("entry_date, entry_type, amount_usd_base")
     .eq("user_id", user.id)
@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
     user_id: user.id
   }));
 
-  const { data: upserted } = await supabase
+  const { data: upserted } = await db
     .from("portfolio_snapshots")
     .upsert(upsertPayload, { onConflict: "user_id,snapshot_date" })
     .select("snapshot_date, total_value_usd")
@@ -112,3 +112,5 @@ export async function GET(request: NextRequest) {
   const years = await getYearsSafe();
   return NextResponse.json({ snapshots: upserted ?? derived, years });
 }
+
+

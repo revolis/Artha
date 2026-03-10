@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
-import { supabaseServer } from "@/lib/supabase/server";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
+import { firebaseAdminDb } from "@/lib/firebase/admin-db";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Invalid OAuth state" }, { status: 400 });
   }
 
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
 
   let refreshToken = tokenPayload.refresh_token as string | undefined;
   if (!refreshToken) {
-    const { data: existingToken } = await supabaseServer
+    const { data: existingToken } = await firebaseAdminDb
       .from("drive_tokens")
       .select("refresh_token")
       .eq("user_id", user.id)
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
     refreshToken = existingToken.refresh_token;
   }
 
-  await supabaseServer
+  await firebaseAdminDb
     .from("drive_tokens")
     .upsert({ user_id: user.id, refresh_token: refreshToken });
 
@@ -74,3 +74,6 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.redirect(new URL("/entries?drive=connected", request.url));
 }
+
+
+

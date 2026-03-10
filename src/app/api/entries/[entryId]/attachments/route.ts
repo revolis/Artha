@@ -1,20 +1,20 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: { entryId: string } }
 ) {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: attachments, error: attachmentsError } = await supabase
+  const { data: attachments, error: attachmentsError } = await db
     .from("attachments")
     .select("id, file_name, mime_type, drive_view_link, created_at")
     .eq("entry_id", params.entryId)
@@ -26,3 +26,5 @@ export async function GET(
 
   return NextResponse.json({ attachments: attachments ?? [] });
 }
+
+

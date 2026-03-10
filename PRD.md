@@ -9,7 +9,7 @@ Build a web-only, single-user personal finance app that tracks profit/loss, port
 - Targets by year/quarter/month/week/day
 - Analytics with premium charts
 - USD base currency with NPR conversion (manual FX per entry, optional default rate)
-- AI insights chat using Gemini (numbers + notes only)
+- AI insights chat using OpenAI (numbers + notes only)
 - Year heatmap (GitHub-style) for net P/L
 - Tax and fee reporting
 - Export CSV/JSON backups and shareable reports
@@ -20,21 +20,21 @@ Build a web-only, single-user personal finance app that tracks profit/loss, port
 - Architecture should be multi-user ready later (no UI yet)
 
 ## Key Constraints (Must-Haves)
-- Cloud persistence only (Supabase Postgres)
+- Cloud persistence only (Firebase/Firestore)
 - No business data in localStorage/IndexedDB
 - Any caching must be in-memory only or server-side
 - Attachments stored in Google Drive; keep originals forever
 - Store attachment metadata + Drive file IDs only
-- Gemini API only via server-side Edge Functions and secrets
+- OpenAI API only via server-side API routes and secrets
 - Trading detail fields only for Trading category
 - Private Mode hides amounts across UI (no passcode)
 
 ## Recommended Stack
 - Frontend: Next.js (App Router) + TypeScript + Tailwind + Recharts
 - UI primitives: Radix + shadcn/ui-style components
-- Backend: Supabase (Postgres + Auth + Edge Functions)
+- Backend: Firebase (Auth + Firestore + Admin SDK)
 - Storage: Google Drive API (drive.file + Picker + OAuth)
-- AI: Gemini via Supabase Edge Functions
+- AI: OpenAI via server-side API routes
 - FX: Manual NPR rate stored per entry (no live FX for now)
 
 ## Core Features by Page
@@ -87,7 +87,7 @@ Build a web-only, single-user personal finance app that tracks profit/loss, port
 - CRUD for sources
 - Tag manager
 
-### Gemini Insights
+### AI Insights
 - Chat UI with suggested prompts
 - Context: numbers + notes only
 - No attachments
@@ -108,7 +108,7 @@ Build a web-only, single-user personal finance app that tracks profit/loss, port
 - Trading details only for Trading category
 - Heatmap auto-scales intensity
 - Exports and share links respect permissions
-- Gemini chat uses only numbers + notes
+- AI chat uses only numbers + notes
 
 ## Open Questions
 - Should the manual NPR rate be stored as a default in UserSettings for new entries?

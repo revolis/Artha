@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { fetchWithAuth } from "@/lib/supabase/browser";
+import { fetchWithAuth } from "@/lib/firebase/browser";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -606,3 +606,4 @@ export default function SourcesPage() {
     </div>
   );
 }
+

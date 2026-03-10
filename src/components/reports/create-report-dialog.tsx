@@ -4,7 +4,7 @@ import * as React from "react";
 import { format } from "date-fns";
 import { CalendarIcon, Download } from "lucide-react";
 
-import { fetchWithAuth } from "@/lib/supabase/browser";
+import { fetchWithAuth } from "@/lib/firebase/browser";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -178,3 +178,4 @@ export function CreateReportDialog({
         </Dialog>
     );
 }
+

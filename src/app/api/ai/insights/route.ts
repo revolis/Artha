@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
-import { getAnalyticsData, Period } from "@/lib/supabase/analytics-queries";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
+import { getAnalyticsData, Period } from "@/lib/firebase/analytics-queries";
 
 export const maxDuration = 60;
 
@@ -197,7 +197,7 @@ function getPeriodLabel(period: Period, customStart?: string, customEnd?: string
 }
 
 export async function POST(request: Request) {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -217,7 +217,7 @@ export async function POST(request: Request) {
     const customEnd = body.customEnd;
 
     const analyticsData = await getAnalyticsData(
-      supabase, 
+      db, 
       user.id, 
       period,
       customStart,
@@ -299,3 +299,5 @@ export async function POST(request: Request) {
     }, { status: errorStatus });
   }
 }
+
+

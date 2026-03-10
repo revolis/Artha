@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
 
 export async function PUT(
   request: NextRequest,
   { params }: { params: { sourceId: string } }
 ) {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -19,7 +19,7 @@ export async function PUT(
     return NextResponse.json({ error: "Missing platform" }, { status: 400 });
   }
 
-  const { data: updated, error: updateError } = await supabase
+  const { data: updated, error: updateError } = await db
     .from("sources")
     .update({
       platform: body.platform,
@@ -43,14 +43,14 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: { sourceId: string } }
 ) {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { error: deleteError } = await supabase
+  const { error: deleteError } = await db
     .from("sources")
     .delete()
     .eq("id", params.sourceId)
@@ -62,3 +62,5 @@ export async function DELETE(
 
   return NextResponse.json({ ok: true });
 }
+
+

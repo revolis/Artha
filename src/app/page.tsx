@@ -4,6 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { onAuthStateChanged } from "firebase/auth";
 import { 
   BarChart3, 
   LineChart, 
@@ -18,7 +19,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { getFirebaseBrowserAuth } from "@/lib/firebase/browser";
 
 const features = [
   {
@@ -58,14 +59,17 @@ export default function LandingPage() {
   const [checking, setChecking] = React.useState(true);
 
   React.useEffect(() => {
-    const supabase = createSupabaseBrowserClient();
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
+    const auth = getFirebaseBrowserAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.cookie = "artha_auth=1; Path=/; Max-Age=2592000; SameSite=Lax";
         router.replace("/dashboard");
       } else {
         setChecking(false);
       }
     });
+
+    return () => unsubscribe();
   }, [router]);
 
   if (checking) {

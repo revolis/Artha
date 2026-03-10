@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "@/app/globals.css";
+import { AuthProvider } from "@/components/auth-provider";
 import { LayoutShell } from "@/components/layout-shell";
 import { PrivateModeProvider } from "@/components/private-mode-provider";
 import { SettingsProvider } from "@/lib/hooks/use-settings";
@@ -14,13 +15,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <SettingsProvider>
-          <PrivateModeProvider>
-            <TooltipProvider>
-              <LayoutShell>{children}</LayoutShell>
-            </TooltipProvider>
-          </PrivateModeProvider>
-        </SettingsProvider>
+        <AuthProvider>
+          <SettingsProvider>
+            <PrivateModeProvider>
+              <TooltipProvider>
+                <LayoutShell>{children}</LayoutShell>
+              </TooltipProvider>
+            </PrivateModeProvider>
+          </SettingsProvider>
+        </AuthProvider>
       </body>
     </html>
   );

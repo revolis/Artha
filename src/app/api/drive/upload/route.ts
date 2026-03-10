@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { randomUUID } from "crypto";
 
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
-import { supabaseServer } from "@/lib/supabase/server";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
+import { firebaseAdminDb } from "@/lib/firebase/admin-db";
 import { getDriveAccessToken } from "@/lib/drive/oauth";
 
 export async function POST(request: NextRequest) {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing file or entry_id" }, { status: 400 });
   }
 
-  const { data: tokenRow } = await supabaseServer
+  const { data: tokenRow } = await firebaseAdminDb
     .from("drive_tokens")
     .select("refresh_token")
     .eq("user_id", user.id)
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 
     const driveFile = await uploadResponse.json();
 
-    const { data: attachment, error: attachmentError } = await supabase
+    const { data: attachment, error: attachmentError } = await db
       .from("attachments")
       .insert({
         entry_id: entryId,
@@ -88,3 +88,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: err instanceof Error ? err.message : "Upload failed" }, { status: 500 });
   }
 }
+
+
+

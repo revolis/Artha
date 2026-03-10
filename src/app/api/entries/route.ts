@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
-import { getYearDateRange, getAvailableYears } from "@/lib/supabase/queries";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
+import { getYearDateRange, getAvailableYears } from "@/lib/firebase/queries";
 
 export async function GET(request: NextRequest) {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
   const year = yearParam ? Number(yearParam) : new Date().getUTCFullYear();
   const { start, end } = getYearDateRange(Number.isFinite(year) ? year : new Date().getUTCFullYear());
 
-  const { data: entries, error: entriesError } = await supabase
+  const { data: entries, error: entriesError } = await db
     .from("entries")
     .select(
       "id, entry_date, entry_type, amount_usd_base, notes, category:categories(id, name), source:sources(id, platform)"
@@ -31,14 +31,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Failed to load entries" }, { status: 500 });
   }
 
-  const normalizedEntries = (entries ?? []).map((entry) => ({
+  const normalizedEntries = (entries ?? []).map((entry: any) => ({
     ...entry,
     category: Array.isArray(entry.category) ? entry.category[0] ?? null : entry.category,
     source: Array.isArray(entry.source) ? entry.source[0] ?? null : entry.source
   }));
 
   try {
-    const years = await getAvailableYears(supabase, user.id);
+    const years = await getAvailableYears(db, user.id);
     return NextResponse.json({ entries: normalizedEntries, years });
   } catch (err) {
     return NextResponse.json({ entries: normalizedEntries, years: [] });
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     notes: body.notes || null
   };
 
-  const { data: created, error: insertError } = await supabase
+  const { data: created, error: insertError } = await db
     .from("entries")
     .insert(payload)
     .select()
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 
   const entryYear = new Date(payload.entry_date).getUTCFullYear();
   if (Number.isFinite(entryYear)) {
-    await supabase
+    await db
       .from("financial_years")
       .upsert({ user_id: user.id, year: entryYear }, { onConflict: "user_id,year" });
   }
@@ -98,16 +98,16 @@ export async function POST(request: NextRequest) {
     : [];
 
   if (tagIds.length > 0) {
-    const { data: tags } = await supabase
+    const { data: tags } = await db
       .from("tags")
       .select("id")
       .eq("user_id", user.id)
       .in("id", tagIds);
 
-    const validTagIds = (tags ?? []).map((tag) => tag.id);
+    const validTagIds = (tags ?? []).map((tag: { id: string }) => tag.id);
     if (validTagIds.length > 0) {
-      await supabase.from("entry_tags").insert(
-        validTagIds.map((tagId) => ({
+      await db.from("entry_tags").insert(
+        validTagIds.map((tagId: string) => ({
           entry_id: created.id,
           tag_id: tagId
         }))
@@ -117,3 +117,5 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ entry: created });
 }
+
+

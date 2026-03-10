@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
 
 export async function GET() {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: entries, error: entriesError } = await supabase
+  const { data: entries, error: entriesError } = await db
     .from("entries")
     .select("id")
     .eq("user_id", user.id)
@@ -23,3 +23,5 @@ export async function GET() {
 
   return NextResponse.json({ available: (entries ?? []).length > 0 });
 }
+
+

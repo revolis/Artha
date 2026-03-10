@@ -1,17 +1,17 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSupabaseRouteClient, getAuthenticatedUser } from "@/lib/supabase/route";
+import { createFirebaseRouteClient, getAuthenticatedUser } from "@/lib/firebase/route";
 
 export async function GET() {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: tags, error: tagsError } = await supabase
+  const { data: tags, error: tagsError } = await db
     .from("tags")
     .select("id, name")
     .eq("user_id", user.id)
@@ -25,7 +25,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const { client: supabase } = createSupabaseRouteClient();
+  const { client: db } = createFirebaseRouteClient();
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing tag name" }, { status: 400 });
   }
 
-  const { data: created, error: insertError } = await supabase
+  const { data: created, error: insertError } = await db
     .from("tags")
     .insert({
       user_id: user.id,
@@ -52,3 +52,5 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ tag: created });
 }
+
+
