@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   ArrowUpDown,
+  ArrowLeftRight,
   BarChart3,
   Briefcase,
   Eye,
@@ -31,6 +32,7 @@ import { SignOutButton } from "@/components/sign-out-button";
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: Gauge },
   { href: "/entries", label: "Entries", icon: ArrowUpDown },
+  { href: "/p2p-cash", label: "P2P Cash", icon: ArrowLeftRight },
   { href: "/portfolio", label: "Portfolio", icon: LineChart },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/heatmap", label: "Year Heatmap", icon: Flame },

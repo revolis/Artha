@@ -39,6 +39,7 @@ const TABLES_WITH_CREATED_AT = new Set([
   "sources",
   "financial_years",
   "entries",
+  "p2p_cash_trades",
   "attachments",
   "portfolio_snapshots",
   "goals",
@@ -47,7 +48,7 @@ const TABLES_WITH_CREATED_AT = new Set([
   "drive_tokens"
 ]);
 
-const TABLES_WITH_UPDATED_AT = new Set(["entries", "user_settings", "drive_tokens"]);
+const TABLES_WITH_UPDATED_AT = new Set(["entries", "p2p_cash_trades", "user_settings", "drive_tokens"]);
 const USER_SCOPED_SINGLE_DOC_TABLES = new Set(["drive_tokens", "user_settings"]);
 
 function nowIso() {
