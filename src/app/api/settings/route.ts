@@ -64,8 +64,16 @@ export async function PATCH(request: NextRequest) {
 
     const { data, error } = await db
         .from("user_settings")
-        .update(upgrades)
-        .eq("user_id", user.id)
+        .upsert(
+            {
+                user_id: user.id,
+                display_currency_mode: "usd",
+                fx_mode: "stored_only",
+                private_mode_default: false,
+                ...upgrades
+            },
+            { onConflict: "user_id" }
+        )
         .select()
         .single();
 

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useContext, createContext } from "react";
+import { useState, useEffect, useContext, createContext, useCallback } from "react";
 import { fetchWithAuth } from "@/lib/firebase/browser";
+import { useAuth } from "@/components/auth-provider";
 
 type Settings = {
     display_currency_mode: "usd" | "npr" | "both";
@@ -25,10 +26,17 @@ const SettingsContext = createContext<SettingsContextType>({
 });
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
+    const { user, loading: authLoading } = useAuth();
     const [settings, setSettings] = useState<Settings | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const fetchSettings = async () => {
+    const fetchSettings = useCallback(async () => {
+        if (!user) {
+            setSettings(null);
+            setLoading(false);
+            return;
+        }
+
         try {
             const res = await fetchWithAuth("/api/settings");
             if (res.ok) {
@@ -39,13 +47,22 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user]);
 
     useEffect(() => {
+        if (authLoading) {
+            return;
+        }
+
+        setLoading(true);
         fetchSettings();
-    }, []);
+    }, [authLoading, fetchSettings, user?.uid]);
 
     const updateSettings = async (updates: Partial<Settings>) => {
+        if (!user) {
+            return;
+        }
+
         setSettings(prev => prev ? { ...prev, ...updates } : null);
 
         try {
